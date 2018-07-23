@@ -1,1 +1,1 @@
-# Adapter for [Cundd Rest](https://rest.cundd.net)
+# TypeScript Adapter for [Cundd Rest](https://rest.cundd.net)
