@@ -8,11 +8,21 @@ export default class RestAdapter implements AdapterInterface {
         this.config = config;
     }
 
-    findAll(resourceType: string): Array<object> {
-        return [];
+    findAll(resourceType: string): Promise<Array<object>> {
+        const x = fetch(this.config.toString());
+
+        console.log(x);
+
+        return new Promise(((resolve, reject) => {
+            setTimeout(resolve, 100);
+        }));
     }
 
-    findByIdentifier(resourceType: string, identifier: string): object | null {
-        return null;
+    findByIdentifier(resourceType: string, identifier: string): Promise<object | null> {
+        return new Promise(((resolve, reject) => {
+
+        }));
     }
+
+    // pubf
 }
