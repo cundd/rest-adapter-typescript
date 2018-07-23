@@ -1,4 +1,3 @@
-import AdapterConfiguration from "./AdapterConfiguration";
 import Endpoint from "./Endpoint";
 
 const getValidParameters = function (includeIpv6: boolean) {
@@ -50,7 +49,7 @@ it('new', () => {
         protocols.forEach(protocol => {
             ports.forEach(port => {
                 paths.forEach(path => {
-                    const configuration = new AdapterConfiguration(new Endpoint(host, protocol, port, path));
+                    const configuration = new Endpoint(host, protocol, port, path);
                     expect(configuration.hostname).toEqual(host);
                     expect(configuration.protocol).toEqual(protocol);
                     expect(configuration.port).toEqual(port);
@@ -77,8 +76,8 @@ const fromUrlTest = (buildUrlObject: boolean) => {
                         : `${protocol}//${host}/${path}`;
 
                     const configuration = buildUrlObject
-                        ? AdapterConfiguration.fromUrl(new URL(urlString))
-                        : AdapterConfiguration.fromUrl(urlString);
+                        ? Endpoint.fromUrl(new URL(urlString))
+                        : Endpoint.fromUrl(urlString);
 
                     expect(configuration.hostname).toEqual(host);
                     expect(configuration.protocol).toEqual(protocol);
@@ -119,7 +118,7 @@ it('new should throw for invalid hostname', () => {
     ];
     hosts.forEach((host) => {
         expect(() => {
-            new AdapterConfiguration(new Endpoint(host as any));
+            new Endpoint(host as any);
         }).toThrowError('Given value is not a valid IPv4, IPv6 or hostname');
     });
 });
@@ -131,7 +130,7 @@ it('new should throw for invalid protocol (empty protocol)', () => {
     ];
     protocols.forEach((protocol) => {
         expect(() => {
-            new AdapterConfiguration(new Endpoint('localhost', protocol as any));
+            new Endpoint('localhost', protocol as any);
         }).toThrowError('Protocol must not be empty');
     });
 });
@@ -144,7 +143,7 @@ it('new should throw for invalid protocol (missing colon)', () => {
     ];
     protocols.forEach((protocol) => {
         expect(() => {
-            new AdapterConfiguration(new Endpoint('localhost', protocol));
+            new Endpoint('localhost', protocol);
         }).toThrowError('Given value is not a valid protocol. Final colon missing');
     });
 });
@@ -156,7 +155,7 @@ it('new should throw for invalid protocol (unsupported)', () => {
     ];
     protocols.forEach((protocol) => {
         expect(() => {
-            new AdapterConfiguration(new Endpoint('localhost', protocol));
+            new Endpoint('localhost', protocol);
         }).toThrowError('Given value is not a valid protocol');
     });
 });
@@ -172,7 +171,31 @@ it('new should throw for invalid port', () => {
     ];
     ports.forEach((port) => {
         expect(() => {
-            new AdapterConfiguration(new Endpoint('localhost', undefined, port as any));
+            new Endpoint('localhost', undefined, port as any);
         }).toThrowError('Given value is not a valid port number');
+    });
+});
+
+it('toString', () => {
+    const parameters = getValidParameters(false);
+    const hosts = parameters.hosts;
+    const protocols = parameters.protocols;
+    const ports = parameters.ports;
+    const paths = parameters.paths;
+
+    hosts.forEach(host => {
+        protocols.forEach(protocol => {
+            ports.forEach(port => {
+                paths.forEach(path => {
+                    const url = port
+                        ? new URL(`${protocol}//${host}:${port}/${path}/`)
+                        : new URL(`${protocol}//${host}/${path}/`)
+                    ; // add a trailing slash, because one will be added in Adapter Configuration
+
+                    const configuration = Endpoint.fromUrl(url);
+                    expect(configuration.toString()).toEqual(url.toString());
+                })
+            })
+        })
     });
 });

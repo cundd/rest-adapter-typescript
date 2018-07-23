@@ -9,10 +9,6 @@ export default class RestAdapter implements AdapterInterface {
     }
 
     findAll(resourceType: string): Promise<Array<object>> {
-        const x = fetch(this.config.toString());
-
-        console.log(x);
-
         return new Promise(((resolve, reject) => {
             setTimeout(resolve, 100);
         }));
@@ -24,5 +20,22 @@ export default class RestAdapter implements AdapterInterface {
         }));
     }
 
-    // pubf
+    assertValidResourceType(resourceType: string | any) {
+        if (typeof resourceType !== 'string') {
+            throw new TypeError(`Resource Type must be of type string "${typeof resourceType}" given`);
+        }
+
+        if (resourceType.indexOf('/') > -1) {
+            throw new TypeError('Resource Type must not contain a slash');
+        }
+    }
+
+    pathForResourceType(resourceType: string): string {
+        this.assertValidResourceType(resourceType);
+
+        return resourceType
+            .replace(/\./, '-')
+            .replace(/\.?([A-Z]+)/g, (x, y) => "_" + y.toLowerCase())
+            .replace(/^_/, '');
+    }
 }
