@@ -1,10 +1,11 @@
-import Credentials from "./Credentials";
-import Util from "./Util";
+import {Credentials} from './Credentials';
+import {EndpointURLInterface, Util} from './Util';
+import {EndpointInterface} from './EndpointInterface';
 
 /**
  * Object to provide necessary information for an Adapter
  */
-export default class Endpoint {
+export class Endpoint implements EndpointInterface {
     /**
      * Hostname, IPv4 or IPv6
      */
@@ -30,18 +31,17 @@ export default class Endpoint {
     /**
      * Credentials to authenticate with the webservice
      */
-    credentials: Credentials | undefined;
+    private _credentials: Credentials | undefined;
 
     /**
      * Build a new Configuration instance from the given URL
      *
-     * @param {URL | Location} url
+     * @param {string | URL | Location} url
      * @return {Endpoint}
      */
-    static fromUrl(url: string | URL | Location): Endpoint {
+    static fromUrl(url: string | URL | Location | EndpointURLInterface): Endpoint {
         if (typeof url === 'string') {
-
-            return this.fromUrl(Util.parseUrl(url) as any);
+            return this.fromUrl(Util.parseUrl(url) as EndpointURLInterface);
         }
         const credentials = url instanceof URL && url.username && url.password
             ? {
@@ -82,7 +82,7 @@ export default class Endpoint {
         this._protocol = protocol;
         this._port = this.preparePort(port);
         this._path = this.preparePath(path);
-        this.credentials = credentials;
+        this._credentials = credentials;
     }
 
     /**
@@ -164,6 +164,24 @@ export default class Endpoint {
         this._path = this.preparePath(value);
     }
 
+    /**
+     * Return the credentials to authenticate with the webservice
+     *
+     * @return {Credentials | undefined}
+     */
+    get credentials(): Credentials | undefined {
+        return this._credentials;
+    }
+
+    /**
+     * Set the credentials to authenticate with the webservice
+     *
+     * @param {Credentials | undefined} value
+     */
+    set credentials(value: Credentials | undefined) {
+        this._credentials = value;
+    }
+
     toString(): string {
         const portPart = this.hasDefaultPort() ? '' : ':' + this._port;
         const pathPart = this._path === '' ? '/' : this._path;
@@ -184,6 +202,7 @@ export default class Endpoint {
      * @param {string} hostname
      */
     private assertValidHostname(hostname: string) {
+        /* tslint:disable-next-line:max-line-length */
         const regex = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))|(^\s*((?=.{1,255}$)(?=.*[A-Za-z].*)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*)\s*$)/;
         if (!hostname || !regex.test(hostname)) {
             throw new TypeError('Given value is not a valid IPv4, IPv6 or hostname');

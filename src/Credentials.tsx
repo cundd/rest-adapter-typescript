@@ -1,7 +1,7 @@
 /**
  * Credentials to authenticate with the webservice
  */
-export default interface Credentials {
+export interface Credentials {
     username: string;
     password: string;
 }

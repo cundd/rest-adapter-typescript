@@ -1,5 +1,6 @@
-export * from './Credentials';
-export * from './Endpoint';
-export * from './AdapterConfiguration';
-export * from './AdapterInterface';
-export * from './RestAdapter';
+export {Credentials} from './Credentials';
+export {Endpoint} from './Endpoint';
+export {AdapterConfiguration, FetchCallback} from './AdapterConfiguration';
+export {AdapterInterface, IdentifierInterface} from './AdapterInterface';
+export {RestAdapter} from './RestAdapter';
+export {EndpointInterface} from './EndpointInterface';

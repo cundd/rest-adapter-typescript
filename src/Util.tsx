@@ -1,14 +1,21 @@
-export default class Util {
+export interface EndpointURLInterface {
+    hostname: string;
+    pathname: string;
+    port: string;
+    protocol: string;
+}
+
+export class Util {
     /**
      * Parse a URL with the help of an A-tag
      *
      * @param {string} href
-     * @return {Location}
+     * @return {EndpointURLInterface}
      */
-    static parseUrl(href: string) {
-        const aTag = document.createElement("a");
+    static parseUrl(href: string): EndpointURLInterface {
+        const aTag = document.createElement('a');
         aTag.href = href;
 
         return aTag;
-    };
+    }
 }

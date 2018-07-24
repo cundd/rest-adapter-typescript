@@ -1,25 +1,43 @@
-import AdapterInterface from "./AdapterInterface";
-import AdapterConfiguration from "./AdapterConfiguration";
+import {AdapterInterface, IdentifierInterface} from './AdapterInterface';
+import {AdapterConfiguration} from './AdapterConfiguration';
 
-export default class RestAdapter implements AdapterInterface {
+export class RestAdapter implements AdapterInterface {
     private readonly config: AdapterConfiguration;
 
     constructor(config: AdapterConfiguration) {
         this.config = config;
     }
 
-    findAll(resourceType: string): Promise<Array<object>> {
+    findAll<T>(resourceType: string): Promise<T[]> {
+        const uri = this.buildUri(resourceType);
+
         return new Promise(((resolve, reject) => {
-            setTimeout(resolve, 100);
+            this.fetch<T>(uri)
+                .then((foundInstances: T[]) => {
+                    resolve(foundInstances);
+                })
+                .catch(reason => {
+                    reject(reason);
+                });
         }));
     }
 
-    findByIdentifier(resourceType: string, identifier: string): Promise<object | null> {
-        return new Promise(((resolve, reject) => {
+    findByIdentifier<T>(resourceType: string, identifier: IdentifierInterface): Promise<T | null> {
+        this.assertValidIdentifier(identifier);
+        const uri = this.buildUri(resourceType) + '/' + identifier;
 
+        return new Promise(((resolve, reject) => {
+            this.fetch<T>(uri)
+                .then((foundInstance: T | null) => {
+                    resolve(foundInstance);
+                })
+                .catch(reason => {
+                    reject(reason);
+                });
         }));
     }
 
+    /* tslint:disable-next-line:no-any */
     assertValidResourceType(resourceType: string | any) {
         if (typeof resourceType !== 'string') {
             throw new TypeError(`Resource Type must be of type string "${typeof resourceType}" given`);
@@ -30,12 +48,48 @@ export default class RestAdapter implements AdapterInterface {
         }
     }
 
+    assertValidIdentifier(identifier: IdentifierInterface | string) {
+        let identifierString;
+        if (typeof identifier === 'string') {
+            identifierString = identifier;
+        }
+        if (identifier && (typeof identifier.toString === 'function')) {
+            identifierString = identifier.toString();
+        } else {
+            throw new TypeError(
+                'Argument "identifier" must implement IdentifierInterface. ' +
+                '"' + (typeof identifier) + '" given'
+            );
+        }
+
+        if (identifierString.indexOf('/') > -1) {
+            throw new TypeError('Identifier must not contain a slash');
+        }
+    }
+
+    // fetch(uri: string): Promise<any> {
+    fetch<T>(uri: string): Promise<T[] | T | null> {
+        const fetchCallback = this.config.fetchCallback;
+        const xhrPromise = fetchCallback
+            ? fetchCallback.call(this, uri) // Use the custom fetch callback
+            : fetch(uri); // Use the JavaScript Fetch API (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+
+        return xhrPromise.then((response: Response) => {
+            return response.json();
+        });
+    }
+
+    buildUri(resourceType: string): string {
+        return this.config.endpoint.toString() + this.pathForResourceType(resourceType);
+    }
+
     pathForResourceType(resourceType: string): string {
         this.assertValidResourceType(resourceType);
 
         return resourceType
+            .replace(/_?([A-Z]+)/g, (x, y) => '_' + y.toLowerCase())
             .replace(/\./, '-')
-            .replace(/\.?([A-Z]+)/g, (x, y) => "_" + y.toLowerCase())
+            .replace(/-_/g, '-')
             .replace(/^_/, '');
     }
 }
