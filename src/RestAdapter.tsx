@@ -35,12 +35,37 @@ export class RestAdapter implements AdapterInterface {
 
         return new Promise(((resolve, reject) => {
             const promise = this.configurePromise(uri, reject);
+
             return promise
                 .then((result: [Response, T | null]) => {
                     const response = result[0];
                     const decodedData = result[1];
 
                     this.checkSingleResult(response, decodedData, resolve, reject);
+                });
+        }));
+    }
+
+    /**
+     * Perform a free request to the given API path
+     *
+     * @param {string} requestPath
+     * @return {Promise<T>}
+     */
+    execute<T>(requestPath: string): Promise<T> {
+        const uri = this.config.endpoint.toString() + requestPath;
+
+        return new Promise(((resolve, reject) => {
+            const promise = this.configurePromise(uri, reject);
+
+            return promise
+                .then((result: [Response, T]) => {
+                    const response = result[0];
+                    const decodedData = result[1];
+
+                    if (this.checkGeneralResult(response, decodedData, reject)) {
+                        resolve(decodedData);
+                    }
                 });
         }));
     }
@@ -143,19 +168,19 @@ export class RestAdapter implements AdapterInterface {
 
     private checkGeneralResult<T>(
         response: Response,
-        result: T[] | T | null,
+        decodedData: T[] | T | null,
         reject: RejectCallback
     ): boolean {
         if (response && response.ok) {
             return true;
         }
 
-        if (!result) {
+        if (!decodedData) {
             reject();
-        } else if (result['error']) {
-            reject(new ApiError(result['error'], result));
+        } else if (decodedData['error']) {
+            reject(new ApiError(decodedData['error'], decodedData));
         } else {
-            reject(result);
+            reject(decodedData);
         }
 
         return false;

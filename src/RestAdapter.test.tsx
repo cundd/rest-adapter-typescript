@@ -100,6 +100,40 @@ describe('findByIdentifier', () => {
     });
 });
 
+describe('execute', () => {
+    it('success should trigger then()', (done: Function) => {
+        expect.assertions(3);
+        fetchMock.resetMocks();
+        const user = {
+            id: 1,
+            name: 'Ewald Cremin'
+        };
+
+        const adapter = new RestAdapter(buildTestConfiguration(user));
+        const promise = adapter.execute('users/123');
+        promise.then(result => {
+            expect(result).toEqual(user);
+            expect(fetchMock.mock.calls.length).toEqual(1);
+            expect(fetchMock.mock.calls[0][0]).toEqual('url:users/123');
+            done();
+        });
+    });
+
+    it('failure should trigger catch()', (done: Function) => {
+        expect.assertions(3);
+        fetchMock.resetMocks();
+        const error = 'API error';
+        const adapter = new RestAdapter(buildTestConfiguration(undefined, error));
+        const promise = adapter.execute('users/123');
+        promise.catch(result => {
+            expect(result).toEqual(error);
+            expect(fetchMock.mock.calls.length).toEqual(1);
+            expect(fetchMock.mock.calls[0][0]).toEqual('url:users/123');
+            done();
+        });
+    });
+});
+
 it('fetch should be called with options', (done: Function) => {
     expect.assertions(3);
     fetchMock.resetMocks();
