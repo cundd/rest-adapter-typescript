@@ -14,7 +14,7 @@ interface AppProps {
 }
 
 interface AppState {
-    nominees: Person[];
+    persons: Person[];
     resource: string;
 }
 
@@ -27,20 +27,22 @@ class App extends React.Component<AppProps, AppState> {
         /* tslint:disable */
         const search = (Util.parseUrl(props.endpoint) as any).search;
         const resource = search ? search.substr(1) : '';
-        console.log(resource);
-        this.restAdapter = new RestAdapter(AdapterConfiguration.fromUrl(props.endpoint));
+        const requestSettings: RequestInit = {
+            credentials: 'include'
+        };
+        this.restAdapter = new RestAdapter(AdapterConfiguration.fromUrl(props.endpoint, requestSettings));
         this.state = {
-            nominees: [],
+            persons: [],
             resource: resource
         };
     }
 
     render() {
-        const nominees = this.state.nominees;
+        const persons = this.state.persons;
 
         return (
             <div className="test-app-container">
-                <ul>{nominees.map((nominee => <li key={nominee.uid}>{nominee.firstName} {nominee.lastName}</li>))}</ul>
+                <ul>{persons.map((person => <li key={person.uid}>#{person.uid} {person.firstName} {person.lastName}</li>))}</ul>
             </div>
         );
     }
@@ -49,7 +51,7 @@ class App extends React.Component<AppProps, AppState> {
         const promise = this.restAdapter.findAll<Person>(this.state.resource);
 
         promise.then((instances) => {
-            this.setState({nominees: instances});
+            this.setState({persons: instances});
         });
     }
 }

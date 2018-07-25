@@ -1,5 +1,5 @@
 import {AdapterInterface, IdentifierInterface} from './AdapterInterface';
-import {AdapterConfiguration} from './AdapterConfiguration';
+import {AdapterConfiguration, FetchCallback} from './AdapterConfiguration';
 
 export class RestAdapter implements AdapterInterface {
     private readonly config: AdapterConfiguration;
@@ -69,10 +69,17 @@ export class RestAdapter implements AdapterInterface {
 
     // fetch(uri: string): Promise<any> {
     fetch<T>(uri: string): Promise<T[] | T | null> {
-        const fetchCallback = this.config.fetchCallback;
-        const xhrPromise = fetchCallback
-            ? fetchCallback.call(this, uri) // Use the custom fetch callback
-            : fetch(uri); // Use the JavaScript Fetch API (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+        const config = this.config;
+        const requestSettings = config.requestSettings;
+        const fetchCallback: FetchCallback | undefined = config.fetchCallback;
+        let xhrPromise;
+        if (fetchCallback) {
+            // Use the custom fetch callback
+            xhrPromise = fetchCallback(uri, requestSettings);
+        } else {
+            // Use the JavaScript Fetch API (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+            xhrPromise = fetch(uri, requestSettings);
+        }
 
         return xhrPromise.then((response: Response) => {
             return response.json();

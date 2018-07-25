@@ -18,6 +18,7 @@ function buildTestConfiguration(responseData: any) {
                 return 'url:';
             }
         },
+        {},
         fetchMock
     );
 }
@@ -60,6 +61,26 @@ it('findByIdentifier should succeed', (done: Function) => {
         expect(result).toEqual(user);
         expect(fetchMock.mock.calls.length).toEqual(1);
         expect(fetchMock.mock.calls[0][0]).toEqual('url:users/123');
+        done();
+    });
+});
+
+it('fetch should be called with options', (done: Function) => {
+    expect.assertions(3);
+    fetchMock.resetMocks();
+    const options: RequestInit = {
+        'method': 'POST',
+        'credentials': 'include',
+    };
+
+    const adapterConfiguration = buildTestConfiguration([]);
+    adapterConfiguration.requestSettings = options;
+    const adapter = new RestAdapter(adapterConfiguration);
+    const promise = adapter.findAll('users');
+    promise.then(() => {
+        expect(fetchMock.mock.calls.length).toEqual(1);
+        expect(fetchMock.mock.calls[0][0]).toEqual('url:users');
+        expect(fetchMock.mock.calls[0][1]).toEqual(options);
         done();
     });
 });

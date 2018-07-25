@@ -13,6 +13,13 @@ export class AdapterConfiguration {
     endpoint: EndpointInterface;
 
     /**
+     * Settings that are forwarded to the fetch callback
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters
+     */
+    requestSettings: RequestInit;
+
+    /**
      * Method to use to make XHR requests
      */
     private _fetchCallback: FetchCallback | undefined;
@@ -21,10 +28,11 @@ export class AdapterConfiguration {
      * Build a new Configuration instance from the given URL
      *
      * @param {URL | Location} url
+     * @param {RequestInit} requestSettings
      * @return {AdapterConfiguration}
      */
-    static fromUrl(url: string | URL | Location): AdapterConfiguration {
-        return new this(Endpoint.fromUrl(url));
+    static fromUrl(url: string | URL | Location, requestSettings: RequestInit = {}): AdapterConfiguration {
+        return new this(Endpoint.fromUrl(url), requestSettings);
     }
 
     /**
@@ -34,9 +42,15 @@ export class AdapterConfiguration {
      * If none is given [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) will be used
      *
      * @param {EndpointInterface} endpoint
+     * @param {RequestInit} requestSettings
      * @param {FetchCallback | undefined} fetchCallback
      */
-    constructor(endpoint: EndpointInterface, fetchCallback: FetchCallback | undefined = undefined) {
+    constructor(
+        endpoint: EndpointInterface,
+        requestSettings: RequestInit = {},
+        fetchCallback: FetchCallback | undefined = undefined
+    ) {
+        this.requestSettings = requestSettings;
         this.fetchCallback = fetchCallback;
         this.endpoint = endpoint;
     }

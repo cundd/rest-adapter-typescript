@@ -1,4 +1,4 @@
-import {AdapterConfiguration} from './AdapterConfiguration';
+import {AdapterConfiguration, FetchCallback} from './AdapterConfiguration';
 import {Endpoint} from './Endpoint';
 
 const getValidParameters = function (includeIpv6: boolean) {
@@ -199,7 +199,7 @@ describe('Customizing the XHR function', () => {
         callbacks.forEach(callback => {
             expect(() => {
                 /* tslint:disable-next-line:no-unused-expression no-any */
-                new AdapterConfiguration(new Endpoint('localhost'), callback as any);
+                new AdapterConfiguration(new Endpoint('localhost'), {}, (callback as any) as FetchCallback);
             }).toThrowError(error);
         });
     });
@@ -241,7 +241,7 @@ describe('Customizing the XHR function', () => {
             return new Promise<Response>(() => {
             });
         };
-        const c = new AdapterConfiguration(new Endpoint('localhost'), callback);
+        const c = new AdapterConfiguration(new Endpoint('localhost'), {}, callback);
         expect(c.fetchCallback).toEqual(callback);
     });
 
