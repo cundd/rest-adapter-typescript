@@ -136,7 +136,7 @@ export class RestAdapter implements AdapterInterface {
             if (Array.isArray(result)) {
                 resolve(result);
             } else {
-                throw new TypeError('Response was ok, but decoded body is not an array');
+                reject(new ApiError('Response was ok, but decoded body is not an array', result));
             }
         }
     }

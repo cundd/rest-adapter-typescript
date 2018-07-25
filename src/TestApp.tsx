@@ -58,6 +58,7 @@ class App extends React.Component<AppProps, AppState> {
                 this.setState({persons: instances});
             })
             .catch(error => {
+                console.warn(error);
                 this.setState({error})
             });
     }
