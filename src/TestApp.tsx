@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {AdapterConfiguration, RestAdapter} from './index';
 import {Util} from './Util';
+import {ApiError} from './ApiError';
 
 class Person {
     uid: string;
@@ -16,6 +17,7 @@ interface AppProps {
 interface AppState {
     persons: Person[];
     resource: string;
+    error?: ApiError;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -33,7 +35,7 @@ class App extends React.Component<AppProps, AppState> {
         this.restAdapter = new RestAdapter(AdapterConfiguration.fromUrl(props.endpoint, requestSettings));
         this.state = {
             persons: [],
-            resource: resource
+            resource: resource,
         };
     }
 
@@ -42,7 +44,8 @@ class App extends React.Component<AppProps, AppState> {
 
         return (
             <div className="test-app-container">
-                <ul>{persons.map((person => <li key={person.uid}>#{person.uid} {person.firstName} {person.lastName}</li>))}</ul>
+                {this.getError()}
+                {this.getPersonsList(persons)}
             </div>
         );
     }
@@ -50,9 +53,34 @@ class App extends React.Component<AppProps, AppState> {
     componentDidMount() {
         const promise = this.restAdapter.findAll<Person>(this.state.resource);
 
-        promise.then((instances) => {
-            this.setState({persons: instances});
-        });
+        promise
+            .then(instances => {
+                this.setState({persons: instances});
+            })
+            .catch(error => {
+                this.setState({error})
+            });
+    }
+
+    private getPersonsList(persons: Person[]) {
+        if (persons.length === 0) {
+            return undefined;
+        }
+
+        return (
+            <ul>
+                {persons.map((person => <li key={person.uid}>#{person.uid} {person.firstName} {person.lastName}</li>))}
+            </ul>
+        );
+    }
+
+    private getError() {
+        const error = this.state.error;
+        if (error) {
+            return <div className="error-container">{error.message}</div>;
+        }
+
+        return undefined;
     }
 }
 
