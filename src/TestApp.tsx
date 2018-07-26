@@ -63,7 +63,7 @@ class App extends React.Component<AppProps, AppState> {
 
     private getPersonsList(persons: Person[]) {
         if (persons.length === 0) {
-            return undefined;
+            return null;
         }
 
         return (
@@ -79,7 +79,7 @@ class App extends React.Component<AppProps, AppState> {
             return <div className="error-container">{error.message}</div>;
         }
 
-        return undefined;
+        return null;
     }
 }
 
