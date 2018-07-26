@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {AdapterConfiguration, RestAdapter} from './index';
 import {Util} from './Util';
-import {ApiError} from './ApiError';
+import {ApiError} from './Error/ApiError';
 
 class Person {
     uid: string;
@@ -58,8 +58,7 @@ class App extends React.Component<AppProps, AppState> {
                 this.setState({persons: instances});
             })
             .catch(error => {
-                console.warn(error);
-                this.setState({error})
+                this.setState({error});
             });
     }
 

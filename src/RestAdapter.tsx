@@ -1,10 +1,14 @@
 import {AdapterInterface, IdentifierInterface} from './AdapterInterface';
 import {AdapterConfiguration, FetchCallback} from './AdapterConfiguration';
-import {ApiError} from './ApiError';
+import {ApiError, buildError} from './Error/ApiError';
+import {FetchError} from './Error/FetchError';
+import {JsonError} from './Error/JsonError';
 
 type ResolveCallback<T> = (value?: T | PromiseLike<T>) => void;
 /* tslint:disable-next-line:no-any */
 type RejectCallback = (reason?: any) => void;
+
+type SuccessCallback<T> = (result: T, resolve: ResolveCallback<T>, reject: RejectCallback) => void;
 
 export class RestAdapter implements AdapterInterface {
     private readonly config: AdapterConfiguration;
@@ -16,34 +20,20 @@ export class RestAdapter implements AdapterInterface {
     findAll<T>(resourceType: string): Promise<T[]> {
         const uri = this.buildUri(resourceType);
 
-        return new Promise((resolve, reject) => {
-            const promise = this.configurePromise(uri, reject);
-
-            return promise
-                .then((result: [Response, T[]]) => {
-                    const response = result[0];
-                    const decodedData = result[1];
-
-                    this.checkCollectionResult(response, decodedData, resolve, reject);
-                });
-        });
+        return this.configurePromise<T[]>(
+            uri,
+            this.checkCollectionResult
+        );
     }
 
     findByIdentifier<T>(resourceType: string, identifier: IdentifierInterface): Promise<T | null> {
         this.assertValidIdentifier(identifier);
         const uri = this.buildUri(resourceType) + '/' + identifier;
 
-        return new Promise(((resolve, reject) => {
-            const promise = this.configurePromise(uri, reject);
-
-            return promise
-                .then((result: [Response, T | null]) => {
-                    const response = result[0];
-                    const decodedData = result[1];
-
-                    this.checkSingleResult(response, decodedData, resolve, reject);
-                });
-        }));
+        return this.configurePromise<T | null>(
+            uri,
+            this.checkSingleResult
+        );
     }
 
     /**
@@ -55,28 +45,47 @@ export class RestAdapter implements AdapterInterface {
     execute<T>(requestPath: string): Promise<T> {
         const uri = this.config.endpoint.toString() + requestPath;
 
-        return new Promise(((resolve, reject) => {
-            const promise = this.configurePromise(uri, reject);
-
-            return promise
-                .then((result: [Response, T]) => {
-                    const response = result[0];
-                    const decodedData = result[1];
-
-                    if (this.checkGeneralResult(response, decodedData, reject)) {
-                        resolve(decodedData);
-                    }
-                });
-        }));
+        return this.configurePromise<T>(
+            uri,
+            this.checkExecuteResult
+        );
     }
 
-    private configurePromise(uri: string, reject: RejectCallback) {
-        const responsePromise = this.fetch(uri).catch(reject);
-        const decodePromise = responsePromise.then((response: Response) => response.json()).catch(reject);
+    private configurePromise<T>(
+        uri: string,
+        successCallback: SuccessCallback<T>
+    ): Promise<T> {
+        return new Promise((resolve, reject) => {
+            return this.fetch(uri)
+                .then(response => {
+                    if (response.ok) {
+                        // If the response is ok try to decode the JSON body
+                        try {
+                            return response.json();
+                        } catch (e) {
+                            reject(buildError(JsonError, e));
 
-        return Promise
-            .all([responsePromise, decodePromise])
-            .catch(reject);
+                            return;
+                        }
+                    } else {
+                        // If there was an error look if a JSON body is given
+                        return response
+                            .json()
+                            .then(errorData => {
+                                reject(buildError(FetchError, errorData));
+                            })
+                            .catch(() => {
+                                reject(buildError(FetchError, response));
+                            });
+                    }
+                })
+                .then(decodedData => {
+                    return successCallback.call(this, decodedData, resolve, reject);
+                })
+                .catch(e => {
+                    reject(buildError(FetchError, e));
+                });
+        });
     }
 
     /* tslint:disable-next-line:no-any */
@@ -141,48 +150,30 @@ export class RestAdapter implements AdapterInterface {
     }
 
     private checkSingleResult<T>(
-        response: Response,
         result: T | null,
         resolve: ResolveCallback<T | null>,
         reject: RejectCallback
     ) {
-        if (this.checkGeneralResult(response, result, reject)) {
-            resolve(result);
-        }
+        resolve(result);
     }
 
     private checkCollectionResult<T>(
-        response: Response,
         result: T[],
         resolve: ResolveCallback<T[]>,
         reject: RejectCallback
     ) {
-        if (this.checkGeneralResult(response, result, reject)) {
-            if (Array.isArray(result)) {
-                resolve(result);
-            } else {
-                reject(new ApiError('Response was ok, but decoded body is not an array', result));
-            }
+        if (Array.isArray(result)) {
+            resolve(result);
+        } else {
+            reject(new ApiError('Response was ok, but decoded body is not an array', result));
         }
     }
 
-    private checkGeneralResult<T>(
-        response: Response,
-        decodedData: T[] | T | null,
+    private checkExecuteResult<T>(
+        result: T,
+        resolve: ResolveCallback<T>,
         reject: RejectCallback
-    ): boolean {
-        if (response && response.ok) {
-            return true;
-        }
-
-        if (!decodedData) {
-            reject();
-        } else if (decodedData['error']) {
-            reject(new ApiError(decodedData['error'], decodedData));
-        } else {
-            reject(decodedData);
-        }
-
-        return false;
+    ) {
+        resolve(result);
     }
 }
