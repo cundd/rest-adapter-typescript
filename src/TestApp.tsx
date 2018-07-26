@@ -43,8 +43,8 @@ class App extends React.Component<AppProps, AppState> {
 
         return (
             <div className="test-app-container">
-                {this.getError()}
-                {this.getPersonsList(persons)}
+                {this.renderError()}
+                {this.renderPersonsList(persons)}
             </div>
         );
     }
@@ -61,7 +61,7 @@ class App extends React.Component<AppProps, AppState> {
             });
     }
 
-    private getPersonsList(persons: Person[]) {
+    private renderPersonsList(persons: Person[]) {
         if (persons.length === 0) {
             return null;
         }
@@ -73,7 +73,7 @@ class App extends React.Component<AppProps, AppState> {
         );
     }
 
-    private getError() {
+    private renderError() {
         const error = this.state.error;
         if (error) {
             return <div className="error-container">{error.message}</div>;
