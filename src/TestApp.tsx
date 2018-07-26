@@ -1,8 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {AdapterConfiguration, RestAdapter} from './index';
+import {AdapterConfiguration, ApiError, RestAdapter} from './index';
 import {Util} from './Util';
-import {ApiError} from './Error/ApiError';
 
 class Person {
     uid: string;
