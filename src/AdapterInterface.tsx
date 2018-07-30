@@ -1,6 +1,4 @@
-export interface IdentifierInterface {
-    toString(): string;
-}
+import {IdentifierInterface} from './IdentifierInterface';
 
 export interface AdapterInterface {
     /**

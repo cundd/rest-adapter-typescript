@@ -1,8 +1,9 @@
-import {AdapterInterface, IdentifierInterface} from './AdapterInterface';
+import {AdapterInterface} from './AdapterInterface';
 import {AdapterConfiguration, FetchCallback} from './AdapterConfiguration';
 import {ApiError, buildError} from './Error/ApiError';
 import {FetchError} from './Error/FetchError';
 import {JsonError} from './Error/JsonError';
+import {IdentifierInterface} from './IdentifierInterface';
 
 type ResolveCallback<T> = (value?: T | PromiseLike<T>) => void;
 /* tslint:disable-next-line:no-any */
