@@ -8,3 +8,5 @@ export * from './Error';
 export {IdentifierInterface} from './IdentifierInterface';
 export {RepositoryInterface} from './RepositoryInterface';
 export {Repository} from './Repository';
+export {ConverterInterface} from './ConverterInterface';
+export {Converter} from './Converter';

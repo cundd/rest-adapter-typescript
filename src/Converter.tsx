@@ -5,12 +5,11 @@ export class Converter<T> implements ConverterInterface<T> {
     /**
      * Convert a single raw object into the target type
      *
-     * @param {object[]} input
-     * @param {object[]} input
      * @param {ClassConstructorType<T>} target
+     * @param {object[]} input
      * @return {T[]}
      */
-    convertSingle(target: ClassConstructorType<T>, input: object | null): T | null {
+    public convertSingle(target: ClassConstructorType<T>, input: object | null): T | null {
         if (!input) {
             return null;
         }
@@ -26,12 +25,11 @@ export class Converter<T> implements ConverterInterface<T> {
     /**
      * Convert a collection of raw object's into the target type
      *
-     * @param {object[]} input
-     * @param {object[]} input
      * @param {ClassConstructorType<T>} target
+     * @param {object[]} input
      * @return {T[]}
      */
-    convertCollection(target: ClassConstructorType<T>, input: object[]): T[] {
+    public convertCollection(target: ClassConstructorType<T>, input: object[]): T[] {
         return Array.prototype.map.call(
             input,
             (item: object) => this.convertSingle(target, item)
