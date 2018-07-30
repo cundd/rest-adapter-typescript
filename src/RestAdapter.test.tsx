@@ -146,7 +146,6 @@ describe('execute', () => {
         });
     });
 
-
     it('invalid body should trigger catch()', () => {
         expect.assertions(1);
         fetchMock.resetMocks();
