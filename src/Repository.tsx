@@ -3,6 +3,7 @@ import {AdapterInterface} from './AdapterInterface';
 import {IdentifierInterface} from './IdentifierInterface';
 import {ClassConstructorType} from './ClassConstructorType';
 import {Converter} from './Converter';
+import {RestAdapter} from './RestAdapter';
 
 export class Repository<T> implements RepositoryInterface<T> {
     private readonly _adapter: AdapterInterface;
@@ -25,5 +26,27 @@ export class Repository<T> implements RepositoryInterface<T> {
     findByIdentifier(identifier: IdentifierInterface): Promise<T | null> {
         return this._adapter.findByIdentifier(this._resourceType, identifier)
             .then(result => this._converter.convertSingle(this._targetType, result));
+    }
+
+    /**
+     * Fetch the objects at the given resource sub-path
+     *
+     * @param {string} subPath
+     * @return {Promise<T>}
+     */
+    execute(subPath: string): Promise<T[] | T | null> {
+        if (this._adapter instanceof RestAdapter) {
+            return this._adapter
+                .execute(this._resourceType + '/' + subPath)
+                .then(result => {
+                    if (Array.isArray(result)) {
+                        return this._converter.convertCollection(this._targetType, result);
+                    } else {
+                        return this._converter.convertSingle(this._targetType, result);
+                    }
+                });
+        }
+
+        throw new TypeError('Currently execute');
     }
 }
