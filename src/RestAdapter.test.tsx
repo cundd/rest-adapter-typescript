@@ -192,3 +192,32 @@ it('fetch should be called with options', () => {
         expect(fetchMock.mock.calls[0][1]).toEqual(options);
     });
 });
+
+describe('post', () => {
+    it('post should trigger then()', () => {
+        expect.assertions(4);
+        fetchMock.resetMocks();
+        const user = {
+            id: 1,
+            name: 'Ewald Cremin'
+        };
+
+        const adapter = new RestAdapter(buildTestConfiguration(JSON.stringify(user)));
+        const promise = adapter.post('users', user);
+
+        return promise.then(result => {
+            expect(result).toEqual(user);
+            expect(fetchMock.mock.calls.length).toEqual(1);
+            expect(fetchMock.mock.calls[0][0]).toEqual('url:users');
+            expect(fetchMock.mock.calls[0][1]).toEqual(
+                {
+                    'body': JSON.stringify(user),
+                    'headers': {
+                        'Content-Type': 'application/json',
+                    },
+                    'method': 'post',
+                }
+            );
+        });
+    });
+});
