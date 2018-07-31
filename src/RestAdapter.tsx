@@ -4,18 +4,22 @@ import {buildError} from './Error/ApiError';
 import {FetchError} from './Error/FetchError';
 import {JsonError} from './Error/JsonError';
 import {IdentifierInterface} from './IdentifierInterface';
+import {Validator} from './Validator';
+import {ValidatorInterface} from './ValidatorInterface';
 
-type ResolveCallback<T> = (value?: T | PromiseLike<T>) => void;
+export type ResolveCallback<T> = (value?: T | PromiseLike<T>) => void;
 /* tslint:disable-next-line:no-any */
-type RejectCallback = (reason?: any) => void;
+export type RejectCallback = (reason?: any) => void;
 
 type SuccessCallback<T> = (result: T, resolve: ResolveCallback<T>, reject: RejectCallback) => void;
 
 export class RestAdapter implements AdapterInterface {
     private readonly config: AdapterConfiguration;
+    private readonly validator: ValidatorInterface;
 
     constructor(config: AdapterConfiguration) {
         this.config = config;
+        this.validator = new Validator();
     }
 
     findAll<T>(resourceType: string): Promise<T[]> {
@@ -209,7 +213,7 @@ export class RestAdapter implements AdapterInterface {
         resolve: ResolveCallback<T | null>,
         reject: RejectCallback
     ) {
-        resolve(result);
+        this.validator.validateSingleResult(result, resolve, reject);
     }
 
     private checkCollectionResult<T>(
@@ -217,11 +221,7 @@ export class RestAdapter implements AdapterInterface {
         resolve: ResolveCallback<T[]>,
         reject: RejectCallback
     ) {
-        if (Array.isArray(result)) {
-            resolve(result);
-        } else {
-            reject(new ApiError('Response was ok, but decoded body is not an array', result));
-        }
+        this.validator.validateCollectionResult(result, resolve, reject);
     }
 
     private checkExecuteResult<T>(
@@ -229,7 +229,7 @@ export class RestAdapter implements AdapterInterface {
         resolve: ResolveCallback<T>,
         reject: RejectCallback
     ) {
-        resolve(result);
+        this.validator.validateSingleResult(result, resolve, reject);
     }
 
     private checkPostResult<T>(
@@ -237,6 +237,6 @@ export class RestAdapter implements AdapterInterface {
         resolve: ResolveCallback<T>,
         reject: RejectCallback
     ) {
-        resolve(result);
+        this.validator.validateSingleResult(result, resolve, reject);
     }
 }
