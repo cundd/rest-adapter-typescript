@@ -1,10 +1,12 @@
 {
     "name": "rest-adapter",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "main": "build/dist/index.js",
     "typings": "build/dist/index.d.ts",
     "license": "MIT",
-    "dependencies": {},
+    "dependencies": {
+        "reflect-metadata": "^0.1.12"
+    },
     "scripts": {
         "build": "tsc -p tsconfig.build.json",
         "test": "node scripts/test.js --env=jsdom"

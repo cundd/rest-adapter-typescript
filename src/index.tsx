@@ -10,3 +10,4 @@ export {RepositoryInterface} from './RepositoryInterface';
 export {Repository} from './Repository';
 export {ConverterInterface} from './ConverterInterface';
 export {Converter} from './Converter';
+export * from './TypeDecorator';

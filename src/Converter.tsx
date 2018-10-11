@@ -1,7 +1,8 @@
-import {ClassConstructorType} from './ClassConstructorType';
-import {ConverterInterface} from './ConverterInterface';
+import 'reflect-metadata';
+import { ClassConstructorType } from './ClassConstructorType';
+import { ConverterInterface } from './ConverterInterface';
 
-export class Converter<T> implements ConverterInterface<T> {
+export class Converter<B> implements ConverterInterface<B> {
     /**
      * Convert a single raw object into the target type
      *
@@ -9,7 +10,7 @@ export class Converter<T> implements ConverterInterface<T> {
      * @param {object[]} input
      * @return {T[]}
      */
-    public convertSingle(target: ClassConstructorType<T>, input: object | null): T | null {
+    public convertSingle<T = B>(target: ClassConstructorType<T>, input: object | null): T | null {
         if (!input) {
             return null;
         }
@@ -29,28 +30,40 @@ export class Converter<T> implements ConverterInterface<T> {
      * @param {object[]} input
      * @return {T[]}
      */
-    public convertCollection(target: ClassConstructorType<T>, input: object[]): T[] {
+    public convertCollection<T = B>(target: ClassConstructorType<T>, input: object[]): T[] {
         return Array.prototype.map.call(
             input,
             (item: object) => this.convertSingle(target, item)
         );
     }
 
-    private assignProperty(newInstance: T | object, key: string, input: object) {
-        if (newInstance.hasOwnProperty(key)) {
-            newInstance[key] = input[key];
-        } else if (this.hasWriteAccess(newInstance, key)) {
-            newInstance[key] = input[key];
-        } else if (this.hasWriteAccess(newInstance, '_' + key)) {
-            newInstance['_' + key] = input[key];
-        } else {
-            if (typeof console !== 'undefined' && typeof console.warn === 'function') {
-                console.warn(`Can not set property "${key}"`);
+    private assignProperty<T>(newInstance: T | object, sourceKey: string, input: object) {
+        const targetKey = this.detectPropertyTargetKey(newInstance, sourceKey);
+        if (targetKey !== null) {
+            const targetType = Reflect.getMetadata('design:type', newInstance, targetKey);
+            if (targetType) {
+                newInstance[targetKey] = this.convertSingle(targetType, input[sourceKey]);
+            } else {
+                newInstance[targetKey] = input[sourceKey];
             }
+        } else if (typeof console !== 'undefined' && typeof console.warn === 'function') {
+            console.warn(`Can not set property "${sourceKey}"`);
         }
     }
 
-    private hasWriteAccess(instance: T | object, key: string) {
+    private detectPropertyTargetKey<T>(newInstance: T | object, sourceKey: string) {
+        if (newInstance.hasOwnProperty(sourceKey)) {
+            return sourceKey;
+        } else if (this.hasWriteAccess(newInstance, sourceKey)) {
+            return sourceKey;
+        } else if (this.hasWriteAccess(newInstance, '_' + sourceKey)) {
+            return '_' + sourceKey;
+        } else {
+            return null;
+        }
+    }
+
+    private hasWriteAccess<T>(instance: T | object, key: string) {
         const descriptor = Object.getOwnPropertyDescriptor(instance, key)
             || Object.getOwnPropertyDescriptor(instance.constructor.prototype, key);
         if (!descriptor) {

@@ -1,11 +1,8 @@
 /* tslint:disable:no-any */
 
-import {Converter} from './Converter';
-
-class Simple {
-    public name: string;
-    public age: number;
-}
+import { Converter } from './Converter';
+import { Address } from './Tests/Fixtures/Address';
+import { Person } from './Tests/Fixtures/Person';
 
 class Accessors {
     get name(): string {
@@ -20,26 +17,51 @@ class Accessors {
     private _age: number;
 }
 
-const checkResult = (result: any, ctor: (new () => any), name: string, age: number) => {
+const checkClass = (result: any, ctor: (new () => any)) => {
     expect(result).toBeDefined();
     expect(result).toBeInstanceOf(ctor);
+};
+
+const checkPerson = (
+    result: any,
+    ctor: (new () => any),
+    name: string,
+    age: number
+) => {
+    checkClass(result, ctor);
     if (result) {
         expect(result.name).toEqual(name);
         expect(result.age).toEqual(age);
     }
 };
+const checkAddress = (
+    result: any,
+    ctor: (new () => any),
+    name: string,
+    age: number,
+    street: string
+) => {
+    checkClass(result, ctor);
+    if (result) {
+        expect(result.street).toEqual(street);
+
+        checkClass(result.person, Person);
+        expect(result.person.name).toEqual(name);
+        expect(result.person.age).toEqual(age);
+    }
+};
 
 describe('convertSingle', () => {
-    it('with class Simple', () => {
+    it('with class Person', () => {
         const converter = new Converter();
         const result = converter.convertSingle(
-            Simple,
+            Person,
             {
                 name: 'Daniel',
                 age: 31,
             }
         );
-        checkResult(result, Simple, 'Daniel', 31);
+        checkPerson(result, Person, 'Daniel', 31);
     });
 
     it('with class Accessors', () => {
@@ -51,12 +73,28 @@ describe('convertSingle', () => {
                 age: 31,
             }
         );
-        checkResult(result, Accessors, 'Daniel', 31);
+        checkPerson(result, Accessors, 'Daniel', 31);
+    });
+
+    it('with class Address', () => {
+        const converter = new Converter<Address>();
+        const result = converter.convertSingle(
+            Address,
+            {
+                street: 'Mainstreet 123',
+                person:
+                    {
+                        name: 'Daniel',
+                        age: 31,
+                    }
+            }
+        );
+        checkAddress(result, Address, 'Daniel', 31, 'Mainstreet 123');
     });
 
     it('with null value', () => {
         const converter = new Converter();
-        const result1 = converter.convertSingle(Simple, null);
+        const result1 = converter.convertSingle(Person, null);
         expect(result1).toBeNull();
 
         const result2 = converter.convertSingle(Accessors, null);
@@ -65,18 +103,18 @@ describe('convertSingle', () => {
 });
 
 describe('convertCollection', () => {
-    it('with class Simple', () => {
+    it('with class Person', () => {
         const converter = new Converter();
         const result = converter.convertCollection(
-            Simple,
+            Person,
             [
                 {name: 'Daniel', age: 31},
                 {name: 'Peter', age: 21}
             ]
         );
         expect(result).toBeDefined();
-        checkResult(result[0], Simple, 'Daniel', 31);
-        checkResult(result[1], Simple, 'Peter', 21);
+        checkPerson(result[0], Person, 'Daniel', 31);
+        checkPerson(result[1], Person, 'Peter', 21);
     });
 
     it('with class Accessors', () => {
@@ -89,7 +127,32 @@ describe('convertCollection', () => {
             ]
         );
         expect(result).toBeDefined();
-        checkResult(result[0], Accessors, 'Daniel', 31);
-        checkResult(result[1], Accessors, 'Peter', 21);
+        checkPerson(result[0], Accessors, 'Daniel', 31);
+        checkPerson(result[1], Accessors, 'Peter', 21);
+    });
+
+    it('with class Address', () => {
+        const converter = new Converter<Address>();
+        const result = converter.convertCollection(
+            Address,
+            [
+                {
+                    street: 'Mainstreet 123',
+                    person: {
+                        name: 'Daniel',
+                        age: 31,
+                    }
+                },
+                {
+                    street: 'Otherstreet 321',
+                    person: {
+                        name: 'Peter',
+                        age: 29,
+                    }
+                }
+            ]
+        );
+        checkAddress(result[0], Address, 'Daniel', 31, 'Mainstreet 123');
+        checkAddress(result[1], Address, 'Peter', 29, 'Otherstreet 321');
     });
 });

@@ -1,6 +1,6 @@
 import {ClassConstructorType} from './ClassConstructorType';
 
-export interface ConverterInterface<T> {
+export interface ConverterInterface<B> {
     /**
      * Convert a single raw object into the target type
      *
@@ -9,7 +9,7 @@ export interface ConverterInterface<T> {
      * @param {ClassConstructorType<T>} target
      * @return {T[]}
      */
-    convertSingle(target: ClassConstructorType<T>, input: object | null): T | null;
+    convertSingle<T = B>(target: ClassConstructorType<T>, input: object | null): T | null;
 
     /**
      * Convert a collection of raw object's into the target type
@@ -19,5 +19,5 @@ export interface ConverterInterface<T> {
      * @param {ClassConstructorType<T>} target
      * @return {T[]}
      */
-    convertCollection(target: ClassConstructorType<T>, input: object[]): T[];
+    convertCollection<T = B>(target: ClassConstructorType<T>, input: object[]): T[];
 }
