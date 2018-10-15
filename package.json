@@ -2,7 +2,7 @@
     "name": "rest-adapter",
     "version": "0.2.0",
     "main": "build/dist/index.js",
-    "typings": "build/dist/index.d.ts",
+    "typings": "src/index.tsx",
     "license": "MIT",
     "dependencies": {
         "reflect-metadata": "^0.1.12"
