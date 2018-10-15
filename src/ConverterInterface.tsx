@@ -1,23 +1,28 @@
-import {ClassConstructorType} from './ClassConstructorType';
+import { ClassConstructorType } from './ClassConstructorType';
 
-export interface ConverterInterface<B> {
+export interface ConverterInterface<B extends object> {
     /**
      * Convert a single raw object into the target type
      *
-     * @param {object[]} input
-     * @param {object[]} input
      * @param {ClassConstructorType<T>} target
-     * @return {T[]}
+     * @param {object | null} input
+     * @return {T | null}
      */
-    convertSingle<T = B>(target: ClassConstructorType<T>, input: object | null): T | null;
+    convertSingle<T extends object = B>(target: ClassConstructorType<T>, input: object | null): T | null;
 
     /**
-     * Convert a collection of raw object's into the target type
+     * Convert a collection of input values into instances of the target type
      *
-     * @param {object[]} input
-     * @param {object[]} input
+     * If the input value is an array or an empty value, the result will be an array,
+     * otherwise a Map will be returned
+     *
      * @param {ClassConstructorType<T>} target
-     * @return {T[]}
+     * @param {I} input
+     * @return {T[] | Map<string, T>}
      */
-    convertCollection<T = B>(target: ClassConstructorType<T>, input: object[]): T[];
+
+    convertCollection<T extends object = B, I = object[]>(
+        target: ClassConstructorType<T>,
+        input: I
+    ): T[] | Map<string, T>;
 }
