@@ -1,11 +1,11 @@
-import {AdapterInterface} from './AdapterInterface';
-import {AdapterConfiguration, FetchCallback} from './AdapterConfiguration';
-import {buildError} from './Error/ApiError';
-import {FetchError} from './Error/FetchError';
-import {JsonError} from './Error/JsonError';
-import {IdentifierInterface} from './IdentifierInterface';
-import {Validator} from './Validator';
-import {ValidatorInterface} from './ValidatorInterface';
+import { AdapterConfiguration, FetchCallback } from './AdapterConfiguration';
+import { AdapterInterface } from './AdapterInterface';
+import { buildError } from './Error/ApiError';
+import { FetchError } from './Error/FetchError';
+import { JsonError } from './Error/JsonError';
+import { IdentifierInterface } from './IdentifierInterface';
+import { Validator } from './Validator';
+import { ValidatorInterface } from './ValidatorInterface';
 
 export type ResolveCallback<T> = (value?: T | PromiseLike<T>) => void;
 /* tslint:disable-next-line:no-any */
@@ -22,7 +22,7 @@ export class RestAdapter implements AdapterInterface {
         this.validator = new Validator();
     }
 
-    findAll<T>(resourceType: string): Promise<T[]> {
+    public findAll<T>(resourceType: string): Promise<T[]> {
         const uri = this.buildUri(resourceType);
 
         return this.configureGetPromise<T[]>(
@@ -31,7 +31,7 @@ export class RestAdapter implements AdapterInterface {
         );
     }
 
-    findByIdentifier<T>(resourceType: string, identifier: IdentifierInterface): Promise<T | null> {
+    public findByIdentifier<T>(resourceType: string, identifier: IdentifierInterface): Promise<T | null> {
         this.assertValidIdentifier(identifier);
         const uri = this.buildUri(resourceType) + '/' + identifier;
 
@@ -47,7 +47,7 @@ export class RestAdapter implements AdapterInterface {
      * @param resourceType
      * @param body
      */
-    post<I, R = I>(resourceType: string, body: I): Promise<R> {
+    public post<I, R = I>(resourceType: string, body: I): Promise<R> {
         const uri = this.buildUri(resourceType);
 
         return this.configurePostPromise<I, R>(
@@ -63,7 +63,7 @@ export class RestAdapter implements AdapterInterface {
      * @param {string} requestPath
      * @return {Promise<T>}
      */
-    execute<T>(requestPath: string): Promise<T> {
+    public execute<T>(requestPath: string): Promise<T> {
         const uri = this.config.endpoint.toString() + requestPath;
 
         return this.configureGetPromise<T>(

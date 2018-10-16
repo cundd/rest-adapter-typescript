@@ -12,7 +12,7 @@ export class Util {
      * @param {string} href
      * @return {EndpointURLInterface}
      */
-    static parseUrl(href: string): EndpointURLInterface {
+    public static parseUrl(href: string): EndpointURLInterface {
         const aTag = document.createElement('a');
         aTag.href = href;
 

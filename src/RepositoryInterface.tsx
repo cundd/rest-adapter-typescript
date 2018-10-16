@@ -1,12 +1,12 @@
-import {IdentifierInterface} from './IdentifierInterface';
+import { IdentifierInterface } from './IdentifierInterface';
 
 export interface RepositoryInterface<T> {
     /**
      * Fetch all records of the repository's type
      *
-     * @return {Promise<Array<object>>}
+     * @return {Promise<T[] | Map<string, T>>}
      */
-    findAll(): Promise<T[]>;
+    findAll(): Promise<T[] | Map<string, T>>;
 
     /**
      * Fetch the record with the given `identifier`

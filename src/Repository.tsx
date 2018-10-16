@@ -35,13 +35,15 @@ export class Repository<T> implements RepositoryInterface<T> {
         this._resourceType = resourceType;
     }
 
-    findAll(): Promise<T[]> {
-        return this._adapter.findAll(this._resourceType)
+    public findAll(): Promise<T[] | Map<string, T>> {
+        return this._adapter
+            .findAll(this._resourceType)
             .then(result => this._converter.convertCollection(this._targetType, result));
     }
 
-    findByIdentifier(identifier: IdentifierInterface): Promise<T | null> {
-        return this._adapter.findByIdentifier(this._resourceType, identifier)
+    public findByIdentifier(identifier: IdentifierInterface): Promise<T | null> {
+        return this._adapter
+            .findByIdentifier(this._resourceType, identifier)
             .then(result => this._converter.convertSingle(this._targetType, result));
     }
 
@@ -51,7 +53,7 @@ export class Repository<T> implements RepositoryInterface<T> {
      * @param {string} subPath
      * @return {Promise<T>}
      */
-    execute(subPath: string): Promise<T[] | T | null> {
+    public execute(subPath: string): Promise<T[] | Map<string, T> | T | null> {
         if (this._adapter instanceof RestAdapter) {
             return this._adapter
                 .execute(this._resourceType + '/' + subPath)
@@ -64,6 +66,6 @@ export class Repository<T> implements RepositoryInterface<T> {
                 });
         }
 
-        throw new TypeError('Currently execute');
+        throw new TypeError('Not implemented');
     }
 }

@@ -1,5 +1,5 @@
-import {Endpoint} from './Endpoint';
-import {EndpointInterface} from './EndpointInterface';
+import { Endpoint } from './Endpoint';
+import { EndpointInterface } from './EndpointInterface';
 
 export type FetchCallback = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
@@ -8,32 +8,32 @@ export type FetchCallback = (input: RequestInfo, init?: RequestInit) => Promise<
  */
 export class AdapterConfiguration {
     /**
-     * API endpoint information
-     */
-    endpoint: EndpointInterface;
-
-    /**
-     * Settings that are forwarded to the fetch callback
-     *
-     * @link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters
-     */
-    requestSettings: RequestInit;
-
-    /**
-     * Method to use to make XHR requests
-     */
-    private _fetchCallback: FetchCallback | undefined;
-
-    /**
      * Build a new Configuration instance from the given URL
      *
      * @param {URL | Location} url
      * @param {RequestInit} requestSettings
      * @return {AdapterConfiguration}
      */
-    static fromUrl(url: string | URL | Location, requestSettings: RequestInit = {}): AdapterConfiguration {
+    public static fromUrl(url: string | URL | Location, requestSettings: RequestInit = {}): AdapterConfiguration {
         return new this(Endpoint.fromUrl(url), requestSettings);
     }
+
+    /**
+     * API endpoint information
+     */
+    public endpoint: EndpointInterface;
+
+    /**
+     * Settings that are forwarded to the fetch callback
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters
+     */
+    public requestSettings: RequestInit;
+
+    /**
+     * Method to use to make XHR requests
+     */
+    private _fetchCallback: FetchCallback | undefined;
 
     /**
      * Create a new Configuration instance
@@ -43,12 +43,12 @@ export class AdapterConfiguration {
      *
      * @param {EndpointInterface} endpoint
      * @param {RequestInit} requestSettings
-     * @param {FetchCallback | undefined} fetchCallback
+     * @param {FetchCallback} fetchCallback
      */
     constructor(
         endpoint: EndpointInterface,
         requestSettings: RequestInit = {},
-        fetchCallback: FetchCallback | undefined = undefined
+        fetchCallback?: FetchCallback
     ) {
         this.requestSettings = requestSettings;
         this.fetchCallback = fetchCallback;

@@ -1,6 +1,6 @@
-import {ApiError} from './Error/ApiError';
-import {RejectCallback, ResolveCallback} from './RestAdapter';
-import {ValidatorInterface} from './ValidatorInterface';
+import { ApiError } from './Error/ApiError';
+import { RejectCallback, ResolveCallback } from './RestAdapter';
+import { ValidatorInterface } from './ValidatorInterface';
 
 export class Validator implements ValidatorInterface {
     /**
@@ -10,7 +10,7 @@ export class Validator implements ValidatorInterface {
      * @param resolve
      * @param reject
      */
-    validateSingleResult<T>(
+    public validateSingleResult<T>(
         result: T | null,
         resolve: ResolveCallback<T | null>,
         reject: RejectCallback
@@ -25,7 +25,7 @@ export class Validator implements ValidatorInterface {
      * @param resolve
      * @param reject
      */
-    validateCollectionResult<T>(
+    public validateCollectionResult<T>(
         result: T[],
         resolve: ResolveCallback<T[]>,
         reject: RejectCallback

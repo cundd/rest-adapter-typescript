@@ -1,11 +1,37 @@
-import {Credentials} from './Credentials';
-import {EndpointURLInterface, Util} from './Util';
-import {EndpointInterface} from './EndpointInterface';
+import { Credentials } from './Credentials';
+import { EndpointInterface } from './EndpointInterface';
+import { EndpointURLInterface, Util } from './Util';
 
 /**
  * Object to provide necessary information for an Adapter
  */
 export class Endpoint implements EndpointInterface {
+    /**
+     * Build a new Configuration instance from the given URL
+     *
+     * @param {string | URL | Location} url
+     * @return {Endpoint}
+     */
+    public static fromUrl(url: string | URL | Location | EndpointURLInterface): Endpoint {
+        if (typeof url === 'string') {
+            return this.fromUrl(Util.parseUrl(url) as EndpointURLInterface);
+        }
+        const credentials = url instanceof URL && url.username && url.password
+            ? {
+                username: url.username,
+                password: url.password,
+            }
+            : undefined;
+
+        return new this(
+            url.hostname,
+            url.protocol,
+            url.port ? parseInt(url.port, 10) : undefined,
+            url.pathname,
+            credentials
+        );
+    }
+
     /**
      * Hostname, IPv4 or IPv6
      */
@@ -34,32 +60,6 @@ export class Endpoint implements EndpointInterface {
     private _credentials: Credentials | undefined;
 
     /**
-     * Build a new Configuration instance from the given URL
-     *
-     * @param {string | URL | Location} url
-     * @return {Endpoint}
-     */
-    static fromUrl(url: string | URL | Location | EndpointURLInterface): Endpoint {
-        if (typeof url === 'string') {
-            return this.fromUrl(Util.parseUrl(url) as EndpointURLInterface);
-        }
-        const credentials = url instanceof URL && url.username && url.password
-            ? {
-                username: url.username,
-                password: url.password,
-            }
-            : undefined;
-
-        return new this(
-            url.hostname,
-            url.protocol,
-            url.port ? parseInt(url.port, 10) : undefined,
-            url.pathname,
-            credentials
-        );
-    }
-
-    /**
      * Create a new Configuration instance
      *
      * @param {string} hostname
@@ -71,9 +71,9 @@ export class Endpoint implements EndpointInterface {
     constructor(
         hostname: string,
         protocol: string = 'https:',
-        port: number | undefined = undefined,
+        port: number | undefined,
         path: string = '',
-        credentials: Credentials | undefined = undefined
+        credentials: Credentials | undefined
     ) {
         this.assertValidHostname(hostname);
         this.assertValidProtocol(protocol);
@@ -182,7 +182,7 @@ export class Endpoint implements EndpointInterface {
         this._credentials = value;
     }
 
-    toString(): string {
+    public toString(): string {
         const portPart = this.hasDefaultPort() ? '' : ':' + this._port;
         const pathPart = this._path === '' ? '/' : this._path;
 
