@@ -1,6 +1,6 @@
 import { ClassConstructorType } from './ClassConstructorType';
 
-export interface ConverterInterface<B extends object> {
+export interface ConverterInterface<B> {
     /**
      * Convert a single raw object into the target type
      *
@@ -8,7 +8,7 @@ export interface ConverterInterface<B extends object> {
      * @param {object | null} input
      * @return {T | null}
      */
-    convertSingle<T extends object = B>(target: ClassConstructorType<T>, input: object | null): T | null;
+    convertSingle<T = B>(target: ClassConstructorType<T>, input: object | null): T | null;
 
     /**
      * Convert a collection of input values into instances of the target type
@@ -21,7 +21,7 @@ export interface ConverterInterface<B extends object> {
      * @return {T[] | Map<string, T>}
      */
 
-    convertCollection<T extends object = B, I = object[]>(
+    convertCollection<T = B, I = object[]>(
         target: ClassConstructorType<T>,
         input: I
     ): T[] | Map<string, T>;

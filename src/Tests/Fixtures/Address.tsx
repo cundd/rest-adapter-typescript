@@ -1,10 +1,12 @@
-import { Type } from '../../TypeDecorator';
+import { PropertyTypeOptions, ra, ra_property } from '../../TypeDecorator';
 import { Person } from './Person';
 
+@ra()
 export class Address {
-    @Type(Person)
+    @ra_property(Person, 'person')
     private _person: Person;
 
+    @ra_property('street', PropertyTypeOptions.None)
     private _street: string;
 
     get street(): string {

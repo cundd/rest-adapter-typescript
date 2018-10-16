@@ -1,9 +1,10 @@
 import 'reflect-metadata';
 import { ClassConstructorType } from './ClassConstructorType';
 import { ConverterInterface } from './ConverterInterface';
-import { TypeDefinition, TypeOptions } from './TypeDecorator';
+import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
+import { PropertyTypeDefinition } from './TypeDecorator/PropertyLevel';
 
-export class Converter<B extends object> implements ConverterInterface<B> {
+export class Converter<B> implements ConverterInterface<B> {
     /**
      * Convert a single raw object into the target type
      *
@@ -11,17 +12,8 @@ export class Converter<B extends object> implements ConverterInterface<B> {
      * @param {object | null} input
      * @return {T | null}
      */
-    public convertSingle<T extends object = B>(target: ClassConstructorType<T>, input: object | null): T | null {
-        if (!input) {
-            return null;
-        }
-
-        const newInstance = new target(input);
-        for (const key of Object.keys(input)) {
-            this.assignProperty(newInstance, key, input);
-        }
-
-        return newInstance;
+    public convertSingle<T = B>(target: ClassConstructorType<T>, input: object | null): T | null {
+        return this.convertSingleInput(target, input);
     }
 
     /**
@@ -34,7 +26,7 @@ export class Converter<B extends object> implements ConverterInterface<B> {
      * @param {I} input
      * @return {T[] | Map<string, T>}
      */
-    public convertCollection<T extends object = B, I = object[]>(
+    public convertCollection<T = B, I = object[]>(
         target: ClassConstructorType<T>,
         input: I
     ): T[] | Map<string, T> {
@@ -48,6 +40,31 @@ export class Converter<B extends object> implements ConverterInterface<B> {
     }
 
     /**
+     * Convert a single raw object into the target type
+     *
+     * @param {ClassConstructorType<T>} target
+     * @param {object | null | string} input
+     * @return {T | null}
+     */
+    private convertSingleInput<T = B>(
+        target: ClassConstructorType<T>,
+        input: object | null | string
+    ): T | null {
+        if (!input) {
+            return null;
+        }
+
+        const newInstance = new target(input);
+        if (typeof input !== 'string') {
+            for (const key of Object.keys(input)) {
+                this.assignProperty(newInstance, key, input);
+            }
+        }
+
+        return newInstance;
+    }
+
+    /**
      * Convert an array of input values into instances of the target type
      *
      * This method is used to convert an input array
@@ -56,10 +73,10 @@ export class Converter<B extends object> implements ConverterInterface<B> {
      * @param {I} input
      * @return {T[]}
      */
-    private convertArrayCollection<I, T extends object>(target: ClassConstructorType<T>, input: I): T[] {
+    private convertArrayCollection<I, T>(target: ClassConstructorType<T>, input: I): T[] {
         return Array.prototype.map.call(
             input,
-            (item: object) => this.convertSingle(target, item)
+            (item: object) => this.convertSingleInput(target, item)
         )
             .filter((i: I) => null !== i);
     }
@@ -73,12 +90,12 @@ export class Converter<B extends object> implements ConverterInterface<B> {
      * @param {I} input
      * @return {Map<string, T>}
      */
-    private convertObjectCollection<I, T extends object>(target: ClassConstructorType<T>, input: I): Map<string, T> {
+    private convertObjectCollection<I, T>(target: ClassConstructorType<T>, input: I): Map<string, T> {
         const targetObject: Map<string, T> = new Map();
 
         Object.keys(input).forEach(
             key => {
-                const convertedInstance = this.convertSingle(target, input[key]);
+                const convertedInstance = this.convertSingleInput(target, input[key]);
                 if (convertedInstance) {
                     targetObject[key] = convertedInstance;
                 }
@@ -87,30 +104,79 @@ export class Converter<B extends object> implements ConverterInterface<B> {
         return targetObject;
     }
 
-    private assignProperty<T extends object>(newInstance: T | object, sourceKey: string, input: object) {
-        const targetKey = this.detectPropertyTargetKey(newInstance, sourceKey);
-        if (targetKey === null) {
+    private assignProperty<T>(target: T, sourceKey: string, source: object) {
+        const typeDefinition = PropertyTypeDefinition.fromObject<T>(target, sourceKey);
+
+        // Look if there is a Property Type Definition for the source key
+        const targetKey = (typeDefinition && typeDefinition.propertyKey)
+            ? typeDefinition.propertyKey
+            : sourceKey;
+
+        if (typeDefinition) {
+            target[targetKey] = this.prepareSourceValue(
+                source,
+                sourceKey,
+                typeDefinition
+            );
+        } else {
+            this.handleSourcePropertyWithoutDefinition(target, sourceKey, source);
+        }
+    }
+
+    private prepareSourceValue<T>(
+        source: object,
+        sourceKey: string,
+        typeDefinition: PropertyTypeDefinition<T>
+    ) {
+        const sourceValue = source[sourceKey];
+
+        if (undefined === typeDefinition.type) {
+            return sourceValue;
+        } else if (typeDefinition.hasMultiple()) {
+            return this.convertCollection(typeDefinition.type, sourceValue);
+        } else {
+            return this.convertSingleInput(typeDefinition.type, sourceValue);
+        }
+    }
+
+    /**
+     * If no target key could be detected for sourceKey check if there is a PropertyTypeDefinition
+     *
+     * @param {T} target
+     * @param {string} sourceKey
+     * @param source
+     */
+    private handleSourcePropertyWithoutDefinition<T, S>(
+        target: T,
+        sourceKey: string,
+        source: S
+    ) {
+        const sourceValue = source[sourceKey];
+        const classTypeDefinition = ClassTypeDefinition.fromObject(target);
+
+        if (!classTypeDefinition || classTypeDefinition.ignoreUnknownFields()) {
             if (typeof console !== 'undefined' && typeof console.warn === 'function') {
-                console.warn(`Can not set property "${sourceKey}"`);
+                console.info(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
             }
             return;
         }
 
-        const typeDefinition: TypeDefinition<T> = TypeDefinition.fromObject(newInstance, targetKey);
-        const sourceValue = input[sourceKey];
-        if (!typeDefinition) {
-            newInstance[targetKey] = sourceValue;
-        } else if (typeDefinition.options & TypeOptions.Multiple) {
-            newInstance[targetKey] = this.convertCollection(typeDefinition.type, sourceValue);
-        } else {
-            newInstance[targetKey] = this.convertSingle(typeDefinition.type, sourceValue);
+        if (classTypeDefinition.denyUnknownFields()) {
+            throw new TypeError(`Property '${sourceKey}' could not be found in '${target.constructor.name}'`);
+        }
+
+        if (classTypeDefinition.addUnknownFields()) {
+            const newTargetKey = this.detectNewPropertyTargetKey(target, sourceKey);
+            if (newTargetKey === null) {
+                throw new TypeError(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
+            }
+
+            target[newTargetKey] = sourceValue;
         }
     }
 
-    private detectPropertyTargetKey<T>(newInstance: T | object, sourceKey: string) {
-        if (newInstance.hasOwnProperty(sourceKey)) {
-            return sourceKey;
-        } else if (this.hasPropertyWriteAccess(newInstance, sourceKey)) {
+    private detectNewPropertyTargetKey<T>(newInstance: T | object, sourceKey: string) {
+        if (this.hasPropertyWriteAccess(newInstance, sourceKey)) {
             return sourceKey;
         } else if (this.hasPropertyWriteAccess(newInstance, '_' + sourceKey)) {
             return '_' + sourceKey;

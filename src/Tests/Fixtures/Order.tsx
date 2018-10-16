@@ -1,10 +1,10 @@
-import { Type, TypeOptions } from '../../TypeDecorator';
+import { PropertyTypeOptions, ra_property } from '../../TypeDecorator';
 import { Address } from './Address';
 
 export class Order {
-    @Type(Address, TypeOptions.Lazy)
-    address: Address;
+    @ra_property(Address, PropertyTypeOptions.Lazy)
+    public address: Address;
 
-    @Type(Date)
-    date: Date;
+    @ra_property(Date)
+    public date: Date;
 }

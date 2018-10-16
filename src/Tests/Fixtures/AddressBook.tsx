@@ -1,7 +1,7 @@
-import { Type, TypeOptions } from '../../TypeDecorator';
+import { PropertyTypeOptions, ra_property } from '../../TypeDecorator';
 import { Address } from './Address';
 
 export class AddressBook {
-    @Type(Address, TypeOptions.Multiple)
-    contacts: Address[];
+    @ra_property(Address, PropertyTypeOptions.Multiple)
+    public contacts: Address[];
 }
