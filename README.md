@@ -24,5 +24,12 @@ export class RealEstate {
 }
 
 const rd = new RestAdapter(AdapterConfiguration.fromUrl('http://base.url.tld/rest/'));
-const p = rd.findAll<Person>('Iresults-RealEstate-Person');
+const promise = rd.findAll<Person>('Iresults-RealEstate-Person');
+promise
+    .then((foundPersons: Person[])=> {
+        // Do something with the found records
+    })
+    .catch(error => {
+        // Handle errors
+    });
 ```
