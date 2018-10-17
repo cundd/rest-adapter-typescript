@@ -1,7 +1,7 @@
-import {AdapterConfiguration, FetchCallback} from './AdapterConfiguration';
-import {Endpoint} from './Endpoint';
+import { AdapterConfiguration, FetchCallback } from './AdapterConfiguration';
+import { Endpoint } from './Endpoint';
 
-const getValidParameters = function (includeIpv6: boolean) {
+const getValidParameters = (includeIpv6: boolean) => {
     const hosts = [
         '127.0.0.1',
         'localhost',
@@ -17,7 +17,7 @@ const getValidParameters = function (includeIpv6: boolean) {
     }
 
     return {
-        hosts: hosts,
+        hosts,
         protocols: [
             'http:',
             'https:',
@@ -35,9 +35,7 @@ const getValidParameters = function (includeIpv6: boolean) {
     };
 };
 
-const trimSlashes = function (input: string) {
-    return input.replace(new RegExp('^/+|/+$', 'g'), '');
-};
+const trimSlashes = (input: string) => input.replace(new RegExp('^/+|/+$', 'g'), '');
 
 describe('Object instantiation', () => {
     it('new', () => {

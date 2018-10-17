@@ -1,20 +1,16 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {AdapterConfiguration, ApiError, RestAdapter} from './index';
-import {Util} from './Util';
-
-class Person {
-    uid: string;
-    firstName: string;
-    lastName: string;
-}
+import { AdapterConfiguration, ApiError, RestAdapter } from './index';
+import { Entry } from './Tests/App/Entry';
+import { EntryView } from './Tests/App/EntryView';
+import { Util } from './Util';
 
 interface AppProps {
     endpoint: string;
 }
 
 interface AppState {
-    persons: Person[];
+    entries: Entry[];
     resource: string;
     error?: ApiError;
 }
@@ -33,44 +29,40 @@ class App extends React.Component<AppProps, AppState> {
         };
         this.restAdapter = new RestAdapter(AdapterConfiguration.fromUrl(props.endpoint, requestSettings));
         this.state = {
-            persons: [],
+            entries: [],
             resource: resource,
         };
     }
 
     render() {
-        const persons = this.state.persons;
+        const entries = this.state.entries;
 
         return (
             <div className="test-app-container">
                 {this.renderError()}
-                {this.renderPersonsList(persons)}
+                {this.renderList(entries)}
             </div>
         );
     }
 
     componentDidMount() {
-        const promise = this.restAdapter.findAll<Person>(this.state.resource);
+        const promise = this.restAdapter.findAll<Entry>(this.state.resource);
 
         promise
             .then(instances => {
-                this.setState({persons: instances});
+                this.setState({entries: instances});
             })
             .catch(error => {
                 this.setState({error});
             });
     }
 
-    private renderPersonsList(persons: Person[]) {
-        if (persons.length === 0) {
+    private renderList(entries: Entry[]) {
+        if (entries.length === 0) {
             return null;
         }
 
-        return (
-            <ul>
-                {persons.map((person => <li key={person.uid}>#{person.uid} {person.firstName} {person.lastName}</li>))}
-            </ul>
-        );
+        return <ul>{entries.map(entry => <EntryView key={entry.uid} entry={entry}/>)}</ul>;
     }
 
     private renderError() {

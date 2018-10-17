@@ -19,6 +19,64 @@
         body {
             font-family: Consolas, Menlo, Monaco, monospace;
         }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        header {
+            line-height: 32px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        li:nth-child(odd) header {
+            line-height: 32px;
+            cursor: pointer;
+            padding: 5px;
+            background: #eeeeee;
+        }
+
+        header:hover,
+        li:nth-child(odd) header:hover {
+            background: gainsboro;
+        }
+
+        header::before {
+            content: "-";
+            display: inline-block;
+            margin-right: 10px;
+            padding: 0 5px;
+            width: 32px;
+            height: 32px;
+            text-align: center;
+            border: 1px solid gainsboro;
+            background: white;
+            border-radius: 100%;
+        }
+
+        header[aria-expanded=true]::before {
+            content: "-";
+        }
+
+        header[aria-expanded=false]::before {
+            content: "+";
+        }
+
+        section {
+            padding: 10px 5px;
+        }
+
+        li:nth-child(odd) section {
+            background: #eeeeee;
+        }
+
+        section[aria-hidden=true] {
+            display: none;
+        }
+
+
     </style>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.

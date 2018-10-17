@@ -7,6 +7,7 @@ import { ConverterInterface } from './ConverterInterface';
 import { Repository } from './Repository';
 import { RestAdapter as RestAdapterClass } from './RestAdapter';
 import MockInstance = jest.MockInstance;
+import DoneCallback = jest.DoneCallback;
 // jest.mock('./sound-player'); // SoundPlayer is now a mock constructor
 jest.mock('./Converter');
 jest.mock('./RestAdapter');
@@ -35,7 +36,7 @@ describe('Converter', () => {
         }),
     }));
 
-    it('Converter should be invoked for findAll()', (done: Function) => {
+    it('Converter should be invoked for findAll()', (done: DoneCallback) => {
         const ConverterMock = jest.fn<ConverterInterface<any>>(() => ({
             convertCollection: jest.fn((targetType: ClassConstructorType<Simple>, input: Simple[]) => {
                 expect(input[0]).toEqual(simple);
@@ -53,7 +54,7 @@ describe('Converter', () => {
         repository.findAll().then();
     });
 
-    it('Converter should be invoked for findByIdentifier()', (done: Function) => {
+    it('Converter should be invoked for findByIdentifier()', (done: DoneCallback) => {
         const ConverterMock = jest.fn<ConverterInterface<any>>(() => ({
             convertSingle: jest.fn((targetType: ClassConstructorType<Simple>, input: Simple) => {
                 expect(input).toEqual(simple);

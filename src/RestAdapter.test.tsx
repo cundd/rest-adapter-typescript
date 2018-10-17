@@ -1,13 +1,14 @@
 /* tslint:disable:no-any */
 
-import {RestAdapter} from './RestAdapter';
-import {AdapterConfiguration} from './AdapterConfiguration';
-import {ApiError} from './Error/ApiError';
+import { AdapterConfiguration } from './AdapterConfiguration';
+import { ApiError } from './Error/ApiError';
+import { RestAdapter } from './RestAdapter';
 
+/* tslint:disable-next-line:no-var-requires */
 const fetchMock = require('jest-fetch-mock');
 
 /* tslint:disable-next-line:no-unused-expression no-any */
-function buildTestConfiguration(responseData: string | undefined, error: any = undefined) {
+function buildTestConfiguration(responseData: string | undefined, error?: any) {
     if (error) {
         fetchMock.mockReject(error);
     } else if (responseData) {

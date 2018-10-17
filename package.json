@@ -9,7 +9,8 @@
     },
     "scripts": {
         "build": "tsc -p tsconfig.build.json",
-        "test": "node scripts/test.js --env=jsdom"
+        "test": "node scripts/test.js --env=jsdom",
+        "start-test-app": "node scripts/start.js"
     },
     "devDependencies": {
         "@types/jest": "^22.2.0",

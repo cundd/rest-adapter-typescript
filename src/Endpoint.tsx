@@ -71,9 +71,9 @@ export class Endpoint implements EndpointInterface {
     constructor(
         hostname: string,
         protocol: string = 'https:',
-        port: number | undefined,
+        port?: number,
         path: string = '',
-        credentials: Credentials | undefined
+        credentials?: Credentials
     ) {
         this.assertValidHostname(hostname);
         this.assertValidProtocol(protocol);
