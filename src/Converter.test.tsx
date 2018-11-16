@@ -164,17 +164,22 @@ describe('convertSingle', () => {
 
         checkClass(result, AddressBook);
         if (result) {
-            checkClass(result.contacts['daniel'], Address);
-            expect(result.contacts['daniel'].street).toEqual('Mainstreet 123');
-            checkClass(result.contacts['daniel'].person, Person);
-            expect(result.contacts['daniel'].person.name).toEqual('Daniel');
-            expect(result.contacts['daniel'].person.age).toEqual(31);
-
-            checkClass(result.contacts['peter'], Address);
-            expect(result.contacts['peter'].street).toEqual('Otherstreet 321');
-            checkClass(result.contacts['peter'].person, Person);
-            expect(result.contacts['peter'].person.name).toEqual('Peter');
-            expect(result.contacts['peter'].person.age).toEqual(29);
+            const contactDaniel = result.contacts.get('daniel');
+            checkClass(contactDaniel, Address);
+            if (contactDaniel) {
+                expect(contactDaniel.street).toEqual('Mainstreet 123');
+                checkClass(contactDaniel.person, Person);
+                expect(contactDaniel.person.name).toEqual('Daniel');
+                expect(contactDaniel.person.age).toEqual(31);
+            }
+            const contactPeter = result.contacts.get('peter');
+            checkClass(contactPeter, Address);
+            if (contactPeter) {
+                expect(contactPeter.street).toEqual('Otherstreet 321');
+                checkClass(contactPeter.person, Person);
+                expect(contactPeter.person.name).toEqual('Peter');
+                expect(contactPeter.person.age).toEqual(29);
+            }
         }
     });
 
@@ -258,13 +263,16 @@ describe('convertCollection', () => {
         const result = converter.convertCollection(
             Accessors,
             {
-                0: {name: 'Daniel', age: 31},
-                1: {name: 'Peter', age: 21},
+                'daniel': {name: 'Daniel', age: 31},
+                'peter': {name: 'Peter', age: 21},
             }
-        );
+        ) as Map<string, Accessors>;
         expect(result).toBeDefined();
-        checkPerson(result['0'], Accessors, 'Daniel', 31);
-        checkPerson(result['1'], Accessors, 'Peter', 21);
+        expect(result).toBeInstanceOf(Map);
+        expect(result.size).toBe(2);
+
+        checkPerson(result.get('daniel'), Accessors, 'Daniel', 31);
+        checkPerson(result.get('peter'), Accessors, 'Peter', 21);
     });
 
     it('with class Address', () => {

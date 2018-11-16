@@ -3,5 +3,5 @@ import { Address } from './Address';
 
 export class AddressBook {
     @ra_property(Address, PropertyTypeOptions.Multiple)
-    public contacts: Address[];
+    public contacts: Map<string, Address>;
 }

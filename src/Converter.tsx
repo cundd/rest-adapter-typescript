@@ -97,7 +97,7 @@ export class Converter<B> implements ConverterInterface<B> {
             key => {
                 const convertedInstance = this.convertSingleInput(target, input[key]);
                 if (convertedInstance) {
-                    targetObject[key] = convertedInstance;
+                    targetObject.set(key, convertedInstance);
                 }
             }
         );

@@ -30,10 +30,10 @@ export class Validator implements ValidatorInterface {
         resolve: ResolveCallback<T[]>,
         reject: RejectCallback
     ) {
-        if (Array.isArray(result)) {
+        if (Array.isArray(result) || typeof result === 'object') {
             resolve(result);
         } else {
-            reject(new ApiError('Response was ok, but decoded body is not an array', result));
+            reject(new ApiError(`Response was ok, but decoded body is not an array but ${typeof result}`, result));
         }
     }
 }
