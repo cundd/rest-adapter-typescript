@@ -46,6 +46,6 @@ export function buildError<E extends ApiError>(
 }
 
 export class ApiError {
-    constructor(readonly message: string, readonly meta?: any) {
+    constructor(readonly message: string, readonly meta?: any, readonly name: string = 'ApiError') {
     }
 }
