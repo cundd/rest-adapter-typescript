@@ -68,4 +68,8 @@ export class Repository<T> implements RepositoryInterface<T> {
 
         throw new TypeError('Not implemented');
     }
+
+    public toString = (): string => {
+        return `[Repository<${this._targetType.name}> ${this._resourceType}]`;
+    };
 }
