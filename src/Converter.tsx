@@ -4,7 +4,16 @@ import { ConverterInterface } from './ConverterInterface';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyLevel';
 
+export interface LoggerInterface {
+    log: (message: string, ...args: any[]) => void;
+}
+
 export class Converter<B> implements ConverterInterface<B> {
+
+    constructor(private logger?: LoggerInterface) {
+
+    }
+
     /**
      * Convert a single raw object into the target type
      *
@@ -155,9 +164,10 @@ export class Converter<B> implements ConverterInterface<B> {
         const classTypeDefinition = ClassTypeDefinition.fromObject(target);
 
         if (!classTypeDefinition || classTypeDefinition.ignoreUnknownFields()) {
-            if (typeof console !== 'undefined' && typeof console.warn === 'function') {
-                console.info(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
+            if (this.logger) {
+                this.logger.log(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
             }
+
             return;
         }
 
