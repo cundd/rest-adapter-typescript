@@ -136,9 +136,9 @@ export class RestAdapter implements AdapterInterface {
             throw new TypeError(`Resource Type must be of type string "${typeof resourceType}" given`);
         }
 
-        if (resourceType.indexOf('/') > -1) {
-            throw new TypeError('Resource Type must not contain a slash');
-        }
+        // if (resourceType.indexOf('/') > -1) {
+        //     throw new TypeError('Resource Type must not contain a slash');
+        // }
     }
 
     private assertValidIdentifier(identifier: IdentifierInterface | string) {
