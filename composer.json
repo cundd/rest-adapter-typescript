@@ -1,0 +1,13 @@
+{
+    "name": "cundd/rest-adapter",
+    "description": "TypeScript Adapter for [Cundd Rest](https://rest.cundd.net)",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniel Corn",
+            "email": "info@cundd.net"
+        }
+    ],
+    "require": {}
+}
