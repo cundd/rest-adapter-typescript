@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import { ClassConstructorType } from './ClassConstructorType';
 import { ConverterInterface } from './ConverterInterface';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
-import { PropertyTypeDefinition } from './TypeDecorator/PropertyLevel';
+import { PrimitiveTypeEnum } from './TypeDecorator/PrimitiveTypeEnum';
+import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
 
 export interface LoggerInterface {
     log: (message: string, ...args: any[]) => void;
@@ -139,12 +140,23 @@ export class Converter<B> implements ConverterInterface<B> {
     ) {
         const sourceValue = source[sourceKey];
 
-        if (undefined === typeDefinition.type) {
+        const type = typeDefinition.type;
+        if (type === PrimitiveTypeEnum.Boolean) {
+            return !!(sourceValue);
+        } else if (type === PrimitiveTypeEnum.Number) {
+            return parseFloat(sourceValue);
+        } else if (type === PrimitiveTypeEnum.String) {
+            return '' + sourceValue;
+        } else if (type === PrimitiveTypeEnum.Null) {
+            return null;
+        } else if (type === PrimitiveTypeEnum.Undefined) {
+            return undefined;
+        } else if (undefined === type) {
             return sourceValue;
         } else if (typeDefinition.hasMultiple()) {
-            return this.convertCollection(typeDefinition.type, sourceValue);
+            return this.convertCollection(type, sourceValue);
         } else {
-            return this.convertSingleInput(typeDefinition.type, sourceValue);
+            return this.convertSingleInput(type, sourceValue);
         }
     }
 

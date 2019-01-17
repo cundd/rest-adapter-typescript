@@ -1,13 +1,14 @@
 import 'reflect-metadata';
 import { ClassConstructorType } from '../ClassConstructorType';
+import { metadataKey } from './MetaDataKey';
 
 export class ClassTypeDefinition<T> {
     public static fromObject<T>(instanceOrClass: T | ClassConstructorType<T>): ClassTypeDefinition<T> | undefined {
         if (typeof instanceOrClass === 'function' && typeof instanceOrClass.prototype !== 'undefined') {
-            return Reflect.getMetadata('design:type', instanceOrClass.prototype);
+            return Reflect.getMetadata(metadataKey, instanceOrClass.prototype);
         }
 
-        return Reflect.getMetadata('design:type', instanceOrClass);
+        return Reflect.getMetadata(metadataKey, instanceOrClass);
     }
 
     constructor(readonly options: number) {
@@ -37,6 +38,6 @@ export enum ClassTypeOptions {
 
 export function ra<T>(options: ClassTypeOptions = ClassTypeOptions.None) {
     return (target: ClassConstructorType<T>) => {
-        Reflect.defineMetadata('design:type', new ClassTypeDefinition(options), target.prototype);
+        Reflect.defineMetadata(metadataKey, new ClassTypeDefinition(options), target.prototype);
     };
 }

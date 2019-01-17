@@ -3,7 +3,8 @@ import { Address } from '../Tests/Fixtures/Address';
 import { AddressBook } from '../Tests/Fixtures/AddressBook';
 import { Order } from '../Tests/Fixtures/Order';
 import { Person } from '../Tests/Fixtures/Person';
-import { PropertyTypeDefinition, PropertyTypeOptions, ra_property } from './PropertyLevel';
+import { PropertyTypeOptions, ra_property } from './PropertyLevel';
+import { metadataKey, PropertyTypeDefinition } from './PropertyTypeDefinition';
 
 class MixedOptions {
     @ra_property(Person, PropertyTypeOptions.None)
@@ -104,13 +105,13 @@ describe('Must have type information', () => {
         it('instance', () => {
             addressTest(
                 new Address(),
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass, '_person')
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass, '_person')
             );
         });
         it('prototype', () => {
             addressTest(
                 Address.prototype,
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass, '_person')
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass, '_person')
             );
         });
     });
@@ -118,13 +119,13 @@ describe('Must have type information', () => {
         it('instance', () => {
             addressBookTest(
                 new AddressBook(),
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass, 'contacts')
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass, 'contacts')
             );
         });
         it('prototype', () => {
             addressBookTest(
                 AddressBook.prototype,
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass, 'contacts')
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass, 'contacts')
             );
         });
     });
@@ -132,13 +133,13 @@ describe('Must have type information', () => {
         it('instance', () => {
             orderTest(
                 new Order(),
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass, 'address')
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass, 'address')
             );
         });
         it('prototype', () => {
             orderTest(
                 Order.prototype,
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass, 'address')
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass, 'address')
             );
         });
     });
@@ -146,13 +147,13 @@ describe('Must have type information', () => {
         it('instance', () => {
             mixedOptionsTest(
                 new MixedOptions(),
-                (instanceOrClass, key) => Reflect.getMetadata('design:type', instanceOrClass, key)
+                (instanceOrClass, key) => Reflect.getMetadata(metadataKey, instanceOrClass, key)
             );
         });
         it('prototype', () => {
             mixedOptionsTest(
                 MixedOptions.prototype,
-                (instanceOrClass, key) => Reflect.getMetadata('design:type', instanceOrClass, key)
+                (instanceOrClass, key) => Reflect.getMetadata(metadataKey, instanceOrClass, key)
             );
         });
     });

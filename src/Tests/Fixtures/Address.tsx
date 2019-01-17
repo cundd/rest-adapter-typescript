@@ -3,7 +3,7 @@ import { Person } from './Person';
 
 @ra()
 export class Address {
-    @ra_property(Person, 'person')
+    @ra_property('person')
     private _person: Person;
 
     @ra_property('street', PropertyTypeOptions.None)

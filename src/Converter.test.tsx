@@ -82,6 +82,18 @@ describe('convertSingle', () => {
         checkPerson(result, Accessors, 'Daniel', 31);
     });
 
+    it('with class Person and primitives', () => {
+        const converter = new Converter();
+        const result = converter.convertSingle(
+            Person,
+            {
+                name: 'Daniel',
+                age: '32',
+            }
+        );
+        checkPerson(result, Person, 'Daniel', 32);
+    });
+
     it('with class Address', () => {
         const converter = new Converter<Address>();
         const result = converter.convertSingle(
@@ -115,7 +127,7 @@ describe('convertSingle', () => {
                         street: 'Otherstreet 321',
                         person: {
                             name: 'Peter',
-                            age: 29,
+                            age: '29',
                         }
                     }
                 ]
@@ -256,6 +268,20 @@ describe('convertCollection', () => {
         expect(result).toBeDefined();
         checkPerson(result[0], Accessors, 'Daniel', 31);
         checkPerson(result[1], Accessors, 'Peter', 21);
+    });
+
+    it('with class Person with primitives', () => {
+        const converter = new Converter();
+        const result = converter.convertCollection(
+            Person,
+            [
+                {name: 'Daniel', age: 31},
+                {name: 'Peter', age: '21'}
+            ]
+        );
+        expect(result).toBeDefined();
+        checkPerson(result[0], Person, 'Daniel', 31);
+        checkPerson(result[1], Person, 'Peter', 21);
     });
 
     it('with object-collection', () => {

@@ -3,6 +3,7 @@ import { Address } from '../Tests/Fixtures/Address';
 import { AddUnknownFields } from '../Tests/Fixtures/AddUnknownFields';
 import { DenyUnknownFields } from '../Tests/Fixtures/DenyUnknownFields';
 import { ClassTypeDefinition, ClassTypeOptions, ra } from './ClassLevel';
+import { metadataKey } from './MetaDataKey';
 
 // ================================================================================================
 // Different tests
@@ -45,13 +46,13 @@ describe('Must have type information', () => {
         it('instance', () => {
             addUnknownFieldsTest(
                 new AddUnknownFields(),
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass)
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass)
             );
         });
         it('prototype', () => {
             addUnknownFieldsTest(
                 AddUnknownFields.prototype,
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass)
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass)
             );
         });
     });
@@ -59,13 +60,13 @@ describe('Must have type information', () => {
         it('instance', () => {
             denyUnknownFieldsTest(
                 new DenyUnknownFields(),
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass)
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass)
             );
         });
         it('prototype', () => {
             denyUnknownFieldsTest(
                 DenyUnknownFields.prototype,
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass)
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass)
             );
         });
     });
@@ -73,13 +74,13 @@ describe('Must have type information', () => {
         it('instance', () => {
             addressTest(
                 new Address(),
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass)
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass)
             );
         });
         it('prototype', () => {
             addressTest(
                 Address.prototype,
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass)
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass)
             );
         });
     });
@@ -90,7 +91,7 @@ describe('Fetch type information', () => {
         it('instance', () => {
             addUnknownFieldsTest(
                 new AddUnknownFields(),
-                instanceOrClass => Reflect.getMetadata('design:type', instanceOrClass)
+                instanceOrClass => Reflect.getMetadata(metadataKey, instanceOrClass)
             );
         });
         it('prototype', () => {
