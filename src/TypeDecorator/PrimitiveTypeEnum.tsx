@@ -22,3 +22,25 @@ export function typeForTypeName(name: string): PrimitiveTypeEnum | undefined {
             return undefined;
     }
 }
+
+export function typeNameForEnum(value: PrimitiveTypeEnum): string {
+    if (!isPrimitiveTypeEnum(value)) {
+        throw new TypeError('Given value is not a PrimitiveTypeEnum');
+    }
+    switch (value) {
+        case PrimitiveTypeEnum.Number:
+            return 'Number';
+        case PrimitiveTypeEnum.Boolean:
+            return 'Boolean';
+        case PrimitiveTypeEnum.String:
+            return 'String';
+        case PrimitiveTypeEnum.Null:
+            return 'Null';
+        case PrimitiveTypeEnum.Undefined:
+            return 'Undefined';
+    }
+}
+
+export function isPrimitiveTypeEnum(value: PrimitiveTypeEnum | any): value is PrimitiveTypeEnum {
+    return value in PrimitiveTypeEnum;
+}
