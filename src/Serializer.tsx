@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { SerializerInterface } from './SerializerInterface';
+import { SerializerInput, SerializerInterface } from './SerializerInterface';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { isPrimitiveTypeEnum, PrimitiveTypeEnum, typeNameForEnum } from './TypeDecorator/PrimitiveTypeEnum';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
@@ -12,11 +12,13 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
     constructor(private logger?: LoggerInterface) {
     }
 
-    public serialize<T extends object = B>(input: T[] | T): string {
+    public serialize<T extends object = B>(input: SerializerInput<T> | null): string {
         if (Array.isArray(input) || input instanceof Map) {
             return JSON.stringify(this.prepareFromCollection(input));
-        } else {
+        } else if (input !== null) {
             return JSON.stringify(this.convertSingleInput(input));
+        } else {
+            return JSON.stringify(null);
         }
     }
 

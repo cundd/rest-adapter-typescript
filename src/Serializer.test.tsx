@@ -1,36 +1,12 @@
 /* tslint:disable:no-any */
 
 import { Serializer } from './Serializer';
+import { Accessors } from './Tests/Fixtures/Accessors';
 import { Address } from './Tests/Fixtures/Address';
 import { AddressBook } from './Tests/Fixtures/AddressBook';
 import { BankAccount } from './Tests/Fixtures/BankAccount';
 import { CalendarEvent } from './Tests/Fixtures/CalendarEvent';
 import { Person } from './Tests/Fixtures/Person';
-import { ra_property } from './TypeDecorator/PropertyLevel';
-
-class Accessors {
-    get name(): string {
-        return this._name;
-    }
-
-    get age(): number {
-        return this._age;
-    }
-
-    @ra_property('name')
-    private _name: string;
-
-    @ra_property('age')
-    private _age: number;
-
-    public internalSetName(name: string) {
-        this._name = name;
-    }
-
-    public internalSetAge(age: number | string) {
-        this._age = age as any;
-    }
-}
 
 function buildAddress(name: string, age: number | string, street: string) {
     const address = new Address();
@@ -53,6 +29,7 @@ describe('serialize', () => {
         const result = serializer.serialize(person);
         expect(result).toBe('{"name":"Daniel","age":31}');
     });
+
     it('with primitive Classes', () => {
         const person = new Person();
 

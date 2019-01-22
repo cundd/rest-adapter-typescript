@@ -1,28 +1,12 @@
 /* tslint:disable:no-any */
 
 import { Converter } from './Converter';
+import { Accessors } from './Tests/Fixtures/Accessors';
 import { Address } from './Tests/Fixtures/Address';
 import { AddressBook } from './Tests/Fixtures/AddressBook';
 import { BankAccount } from './Tests/Fixtures/BankAccount';
 import { CalendarEvent } from './Tests/Fixtures/CalendarEvent';
 import { Person } from './Tests/Fixtures/Person';
-import { ra_property } from './TypeDecorator/PropertyLevel';
-
-class Accessors {
-    get name(): string {
-        return this._name;
-    }
-
-    get age(): number {
-        return this._age;
-    }
-
-    @ra_property('name')
-    private _name: string;
-
-    @ra_property('age')
-    private _age: number;
-}
 
 const checkClass = (result: any, ctor: (new (...a: any[]) => any)) => {
     expect(result).toBeDefined();
@@ -388,20 +372,4 @@ describe('Handle unknown fields', () => {
             );
         }).toThrow('Property \'newProperty\' could not be found in \'CalendarEvent\'');
     });
-
-    // it('add unknown fields', () => {
-    //     const converter = new Converter<BankAccount>();
-    //     expect(() => {
-    //         converter.convertSingle(
-    //             BankAccount,
-    //             {
-    //                 firstName: 'Bert',
-    //                 lastName: 'Butcher',
-    //                 iban: 'SA3660I7567Q9129M9T6416V',
-    //                 newProperty: 'something new'
-    //             }
-    //         );
-    //     }).toThrow('Property \'unknownProperty\' could not be found in BankAccount');
-    // });
-
 });
