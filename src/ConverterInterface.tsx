@@ -20,7 +20,6 @@ export interface ConverterInterface<B> {
      * @param {I} input
      * @return {T[] | Map<string, T>}
      */
-
     convertCollection<T = B, I = object[]>(
         target: ClassConstructorType<T>,
         input: I

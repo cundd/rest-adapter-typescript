@@ -215,7 +215,7 @@ describe('convertSingle', () => {
     });
 
     it('with Date', () => {
-        const converter = new Converter<BankAccount>();
+        const converter = new Converter<CalendarEvent>();
         const result = converter.convertSingle(
             CalendarEvent,
             {

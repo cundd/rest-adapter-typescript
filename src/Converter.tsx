@@ -10,9 +10,7 @@ export interface LoggerInterface {
 }
 
 export class Converter<B> implements ConverterInterface<B> {
-
     constructor(private logger?: LoggerInterface) {
-
     }
 
     /**
@@ -213,6 +211,7 @@ export class Converter<B> implements ConverterInterface<B> {
         if (!descriptor) {
             return true;
         }
+        // noinspection RedundantIfStatementJS
         if (descriptor.get && !descriptor.set) {
             return false;
         }
