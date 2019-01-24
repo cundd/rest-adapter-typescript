@@ -6,6 +6,7 @@ import { Address } from './Tests/Fixtures/Address';
 import { AddressBook } from './Tests/Fixtures/AddressBook';
 import { BankAccount } from './Tests/Fixtures/BankAccount';
 import { CalendarEvent } from './Tests/Fixtures/CalendarEvent';
+import { Nested, NestedWithInterface, NestedWithParentAndInterface } from './Tests/Fixtures/Nested';
 import { Person } from './Tests/Fixtures/Person';
 import { checkAddress, checkClass, checkPerson } from './Tests/Helper';
 
@@ -325,6 +326,85 @@ describe('convertCollection', () => {
         expect(result[1].firstName).toEqual('Barney');
         expect(result[1].lastName).toEqual('Backer');
         expect(result[1].iban).toEqual('ME84059360905300969554');
+    });
+});
+
+describe('Nesting', () => {
+    const nestedData = {
+        inner: {
+            a: {
+                name: 'Name A'
+            },
+            b: {
+                name: 'Name B',
+                description: 'Description B'
+            },
+            c: {
+                name: 'Name C',
+                description: 'Description C',
+                b: {
+                    name: 'Name C B',
+                    description: 'Description C B'
+                }
+            },
+        }
+    };
+
+    function testNested<T extends Partial<Nested>>(result: any, ctor: (new (...a: any[]) => T)) {
+        if (checkClass(result, ctor)) {
+            expect(result.inner).not.toBeUndefined();
+            if (result.inner) {
+                expect(result.inner.a).not.toBeUndefined();
+                if (result.inner.a) {
+                    expect(result.inner.a.name).toEqual('Name A');
+                }
+                expect(result.inner.b.name).toEqual('Name B');
+                expect(result.inner.b.description).toEqual('Description B');
+
+                expect(result.inner.c).not.toBeUndefined();
+                if (result.inner.c) {
+                    expect(result.inner.c.description).toEqual('Description C');
+                    expect(result.inner.c.b.name).toEqual('Name C B');
+                    expect(result.inner.c.b.description).toEqual('Description C B');
+                    expect(result.inner.c.computed).toEqual('Computed Name C B');
+                }
+            }
+        }
+    }
+
+    it('without normal class', () => {
+        const converter = new Converter<Nested>();
+        testNested(converter.convertSingle(Nested, nestedData), Nested);
+    });
+
+    it('with interface', () => {
+        const converter = new Converter<NestedWithInterface>();
+        testNested(converter.convertSingle(NestedWithInterface, nestedData), NestedWithInterface);
+    });
+
+    it('without interface and parent', () => {
+        const converter = new Converter<NestedWithParentAndInterface>();
+        testNested(converter.convertSingle(NestedWithParentAndInterface, nestedData), NestedWithParentAndInterface);
+    });
+
+    it('without property `a`', () => {
+        const converter = new Converter<Nested>();
+        const result = converter.convertSingle(
+            Nested,
+            {
+                inner: {
+                    b: {
+                        name: 'Test',
+                        description: 'Description B'
+                    },
+                }
+            }
+        );
+
+        if (checkClass(result, Nested)) {
+            expect(result.inner.b.name).toEqual('Test');
+            expect(result.inner.b.description).toEqual('Description B');
+        }
     });
 });
 
