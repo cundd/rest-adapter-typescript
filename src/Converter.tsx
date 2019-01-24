@@ -3,7 +3,7 @@ import { ClassConstructorType } from './ClassConstructorType';
 import { ConverterInterface } from './ConverterInterface';
 import { ConverterTypeError } from './Error/ConverterTypeError';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
-import { PrimitiveTypeEnum } from './TypeDecorator/PrimitiveTypeEnum';
+import { isNotPrimitive, PrimitiveTypeEnum } from './TypeDecorator/PrimitiveTypeEnum';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
 
 export interface LoggerInterface {
@@ -63,14 +63,17 @@ export class Converter<B> implements ConverterInterface<B> {
             return null;
         }
 
-        const newInstance = new target(input);
-        if (typeof input === 'object') {
+        if (isNotPrimitive(input)) {
+            // Create an instance without calling `new`
+            const newInstance = Object.create(target.prototype);
             for (const key of Object.keys(input)) {
                 this.assignProperty(newInstance, key, input);
             }
-        }
 
-        return newInstance;
+            return newInstance;
+        } else {
+            return new target(input);
+        }
     }
 
     /**

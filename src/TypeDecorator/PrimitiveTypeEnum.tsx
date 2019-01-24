@@ -23,6 +23,18 @@ export function typeForTypeName(name: string): PrimitiveTypeEnum | undefined {
     }
 }
 
+export function isPrimitive(value: any): boolean {
+    if (typeof value === 'object') {
+        return false;
+    } else {
+        return typeForTypeName(value.constructor.name) !== undefined;
+    }
+}
+
+export function isNotPrimitive(value: any): value is object {
+    return !isPrimitive(value);
+}
+
 export function typeNameForEnum(value: PrimitiveTypeEnum): string {
     if (!isPrimitiveTypeEnum(value)) {
         throw new TypeError('Given value is not a PrimitiveTypeEnum');
