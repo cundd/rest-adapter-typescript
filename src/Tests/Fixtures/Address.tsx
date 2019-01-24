@@ -21,7 +21,8 @@ export class Address {
         this._street = value;
     }
 
-    public internalSetPerson(value: Person) {
-        this._person = value;
+    public internalSetPerson(value: Person | undefined | null) {
+        this._person = value as any;
     }
 }
+

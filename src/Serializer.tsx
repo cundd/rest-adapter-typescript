@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { SerializationError } from './Error/SerializationError';
 import { SerializerInput, SerializerInterface } from './SerializerInterface';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { isPrimitiveTypeEnum, PrimitiveTypeEnum, typeNameForEnum } from './TypeDecorator/PrimitiveTypeEnum';
@@ -8,15 +9,17 @@ export interface LoggerInterface {
     log: (message: string, ...args: any[]) => void;
 }
 
+const replacer = (key: string, value: any) => value === undefined ? null : value;
+
 export class Serializer<B extends object> implements SerializerInterface<B> {
     constructor(private logger?: LoggerInterface) {
     }
 
     public serialize<T extends object = B>(input: SerializerInput<T> | null): string {
         if (Array.isArray(input) || input instanceof Map) {
-            return JSON.stringify(this.prepareFromCollection(input));
+            return JSON.stringify(this.prepareFromCollection(input), replacer);
         } else if (input !== null) {
-            return JSON.stringify(this.convertSingleInput(input));
+            return JSON.stringify(this.convertSingleInput(input), replacer);
         } else {
             return JSON.stringify(null);
         }
@@ -42,12 +45,16 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * Convert a single object into an object that can be serialized
      *
      * @param {T} input
-     * @return {object}
+     * @return {object|null}
      */
-    private convertSingleInput<T extends object = B>(input: T): object {
+    private convertSingleInput<T extends object = B>(input: T): object | null {
         const target = {};
         if (input instanceof Date) {
             return input;
+        }
+        this.assertObject(input);
+        if (input === null) {
+            return null;
         }
         for (const key of Object.keys(input)) {
             this.serializeProperty(target, key, input);
@@ -99,6 +106,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
     private convertObjectCollection<T>(input: T): object {
         const targetObject = {};
 
+        this.assertObject(input);
         Object.keys(input).forEach(
             key => {
                 targetObject[key] = this.convertSingleInput(input[key]);
@@ -135,6 +143,16 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         const sourceValue = source[sourceKey];
 
         const type = typeDefinition.type;
+
+        // Handle `null` or `undefined`
+        if (sourceValue === null || sourceValue === undefined) {
+            return null;
+        }
+
+        // Handle generic objects or untyped values
+        if (typeof type === 'function' && type === Object.prototype.constructor) {
+            return sourceValue;
+        }
 
         // If `type` is a primitive type check if the source value already has the correct type
         if (isPrimitiveTypeEnum(type)) {
@@ -189,11 +207,17 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         }
 
         if (classTypeDefinition.denyUnknownFields()) {
-            throw new TypeError(`Property '${sourceKey}' in '${source.constructor.name}' could not be found`);
+            throw new SerializationError(`Property '${sourceKey}' in '${source.constructor.name}' could not be found`);
         }
 
         if (classTypeDefinition.addUnknownFields()) {
             target[sourceKey] = sourceValue;
+        }
+    }
+
+    private assertObject(input: any) {
+        if (typeof input !== 'object') {
+            throw new SerializationError(`Argument 'input' must be an object, '${typeof input}' given`);
         }
     }
 }

@@ -1,9 +1,9 @@
 export enum PrimitiveTypeEnum {
-    Number = 0x00937120,
-    Boolean = 0x00937121,
-    String = 0x00937123,
-    Null = 0x00937124,
-    Undefined = 0x00937125,
+    Number = 937120,
+    Boolean = 937121,
+    String = 937123,
+    Null = 937124,
+    Undefined = 937125,
 }
 
 export function typeForTypeName(name: string): PrimitiveTypeEnum | undefined {

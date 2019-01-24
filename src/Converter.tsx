@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { ClassConstructorType } from './ClassConstructorType';
 import { ConverterInterface } from './ConverterInterface';
+import { ConverterTypeError } from './Error/ConverterTypeError';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { PrimitiveTypeEnum } from './TypeDecorator/PrimitiveTypeEnum';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
@@ -63,7 +64,7 @@ export class Converter<B> implements ConverterInterface<B> {
         }
 
         const newInstance = new target(input);
-        if (typeof input !== 'string') {
+        if (typeof input === 'object') {
             for (const key of Object.keys(input)) {
                 this.assignProperty(newInstance, key, input);
             }
@@ -101,6 +102,9 @@ export class Converter<B> implements ConverterInterface<B> {
     private convertObjectCollection<I, T>(target: ClassConstructorType<T>, input: I): Map<string, T> {
         const targetObject: Map<string, T> = new Map();
 
+        if (typeof input !== 'object') {
+            throw new ConverterTypeError(`Argument 'input' must be an object, '${typeof input}' given`);
+        }
         Object.keys(input).forEach(
             key => {
                 const convertedInstance = this.convertSingleInput(target, input[key]);
@@ -137,6 +141,11 @@ export class Converter<B> implements ConverterInterface<B> {
         typeDefinition: PropertyTypeDefinition<T>
     ) {
         const sourceValue = source[sourceKey];
+
+        // Handle `null` or `undefined`
+        if (sourceValue === null || sourceValue === undefined) {
+            return sourceValue;
+        }
 
         const type = typeDefinition.type;
         if (type === PrimitiveTypeEnum.Boolean) {
@@ -182,13 +191,13 @@ export class Converter<B> implements ConverterInterface<B> {
         }
 
         if (classTypeDefinition.denyUnknownFields()) {
-            throw new TypeError(`Property '${sourceKey}' could not be found in '${target.constructor.name}'`);
+            throw new ConverterTypeError(`Property '${sourceKey}' could not be found in '${target.constructor.name}'`);
         }
 
         if (classTypeDefinition.addUnknownFields()) {
             const newTargetKey = this.detectNewPropertyTargetKey(target, sourceKey);
             if (newTargetKey === null) {
-                throw new TypeError(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
+                throw new ConverterTypeError(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
             }
 
             target[newTargetKey] = sourceValue;

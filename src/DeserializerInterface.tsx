@@ -11,5 +11,5 @@ export interface DeserializerInterface<B> {
      * @param {object | null} input
      * @return {T | null}
      */
-    deserialize<T = B>(target: ClassConstructorType<T>, input: string): DeserializerResult<T>;
+    deserialize<T = B, R = DeserializerResult<T>>(target: ClassConstructorType<T>, input: string): R;
 }

@@ -12,7 +12,7 @@ export const checkPerson = (
     result: any,
     ctor: (new () => any),
     name: string,
-    age: number
+    age: number | undefined | null
 ) => {
     checkClass(result, ctor);
     if (result) {

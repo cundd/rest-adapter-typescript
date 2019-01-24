@@ -7,39 +7,7 @@ import { AddressBook } from './Tests/Fixtures/AddressBook';
 import { BankAccount } from './Tests/Fixtures/BankAccount';
 import { CalendarEvent } from './Tests/Fixtures/CalendarEvent';
 import { Person } from './Tests/Fixtures/Person';
-
-const checkClass = (result: any, ctor: (new (...a: any[]) => any)) => {
-    expect(result).toBeDefined();
-    expect(result).toBeInstanceOf(ctor);
-};
-
-const checkPerson = (
-    result: any,
-    ctor: (new () => any),
-    name: string,
-    age: number
-) => {
-    checkClass(result, ctor);
-    if (result) {
-        expect(result.name).toEqual(name);
-        expect(result.age).toEqual(age);
-    }
-};
-const checkAddress = (
-    result: any,
-    name: string,
-    age: number,
-    street: string
-) => {
-    checkClass(result, Address);
-    if (result) {
-        expect(result.street).toEqual(street);
-
-        checkClass(result.person, Person);
-        expect(result.person.name).toEqual(name);
-        expect(result.person.age).toEqual(age);
-    }
-};
+import { checkAddress, checkClass, checkPerson } from './Tests/Helper';
 
 describe('convertSingle', () => {
     it('with class Person', () => {
@@ -52,6 +20,30 @@ describe('convertSingle', () => {
             }
         );
         checkPerson(result, Person, 'Daniel', 31);
+    });
+
+    it('with class Person with undefined age', () => {
+        const converter = new Converter();
+        const result = converter.convertSingle(
+            Person,
+            {
+                name: 'Daniel',
+                age: undefined,
+            }
+        );
+        checkPerson(result, Person, 'Daniel', undefined);
+    });
+
+    it('with class Person with null age', () => {
+        const converter = new Converter();
+        const result = converter.convertSingle(
+            Person,
+            {
+                name: 'Daniel',
+                age: null,
+            }
+        );
+        checkPerson(result, Person, 'Daniel', null);
     });
 
     it('with class Accessors', () => {
@@ -118,8 +110,7 @@ describe('convertSingle', () => {
             }
         );
 
-        checkClass(result, AddressBook);
-        if (result) {
+        if (checkClass(result, AddressBook)) {
             checkClass(result.contacts[0], Address);
             expect(result.contacts[0].street).toEqual('Mainstreet 123');
             checkClass(result.contacts[0].person, Person);
@@ -158,8 +149,7 @@ describe('convertSingle', () => {
             }
         );
 
-        checkClass(result, AddressBook);
-        if (result) {
+        if (checkClass(result, AddressBook)) {
             const contactDaniel = result.contacts.get('daniel');
             checkClass(contactDaniel, Address);
             if (contactDaniel) {
@@ -190,8 +180,7 @@ describe('convertSingle', () => {
             }
         );
 
-        checkClass(result, BankAccount);
-        if (result) {
+        if (checkClass(result, BankAccount)) {
             expect(result.firstName).toEqual('Bert');
             expect(result.lastName).toEqual('Butcher');
             expect(result.iban).toEqual('SA3660I7567Q9129M9T6416V');
@@ -208,8 +197,7 @@ describe('convertSingle', () => {
             }
         );
 
-        checkClass(result, CalendarEvent);
-        if (result) {
+        if (checkClass(result, CalendarEvent)) {
             expect(result.name).toEqual('Birthday Party');
             expect(result.date.valueOf()).toBe(1539624600000);
         }
@@ -353,8 +341,7 @@ describe('Handle unknown fields', () => {
             }
         );
 
-        checkClass(result, BankAccount);
-        if (result) {
+        if (checkClass(result, BankAccount)) {
             expect(result.firstName).toEqual('Bert');
             expect(result.lastName).toEqual('Butcher');
             expect(result.iban).toEqual('SA3660I7567Q9129M9T6416V');
