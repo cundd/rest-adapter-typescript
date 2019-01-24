@@ -1,8 +1,10 @@
 import { AdapterConfiguration, FetchCallback } from './AdapterConfiguration';
+import { AdapterExecuteInterface } from './AdapterExecuteInterface';
 import { AdapterInterface } from './AdapterInterface';
 import { buildError } from './Error/ApiError';
 import { FetchError } from './Error/FetchError';
 import { JsonError } from './Error/JsonError';
+import { ExecuteMethod } from './ExecuteMethod';
 import { IdentifierInterface } from './IdentifierInterface';
 import { Validator } from './Validator';
 import { ValidatorInterface } from './ValidatorInterface';
@@ -13,7 +15,7 @@ export type RejectCallback = (reason?: any) => void;
 
 type SuccessCallback<T> = (result: T, resolve: ResolveCallback<T>, reject: RejectCallback) => void;
 
-export class RestAdapter implements AdapterInterface {
+export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
     private readonly config: AdapterConfiguration;
     private readonly validator: ValidatorInterface;
 
@@ -58,18 +60,38 @@ export class RestAdapter implements AdapterInterface {
     }
 
     /**
-     * Perform a free request to the given API path
+     * Perform a GET or POST request to the given API path
      *
      * @param {string} requestPath
-     * @return {Promise<T>}
+     * @param {string} method
+     * @param {I} body
+     * @return {Promise<R>}
      */
-    public execute<T>(requestPath: string): Promise<T> {
+    public execute<I, R extends object = {}>(
+        requestPath: string,
+        method: ExecuteMethod = ExecuteMethod.GET,
+        body?: I
+    ): Promise<R> {
         const uri = this.config.endpoint.toString() + requestPath;
 
-        return this.configureGetPromise<T>(
-            uri,
-            this.checkExecuteResult
-        );
+        if (method === 'GET') {
+            return this.configureGetPromise<R>(
+                uri,
+                this.checkExecuteResult
+            );
+        } else if (method === 'POST') {
+            if (arguments.length < 3) {
+                throw new ReferenceError('Missing request body');
+            }
+
+            return this.configurePostPromise<I, R>(
+                uri,
+                body as I,
+                this.checkExecuteResult
+            );
+        } else {
+            throw new TypeError(`Method '${method}' is not implemented`);
+        }
     }
 
     private configureGetPromise<T>(

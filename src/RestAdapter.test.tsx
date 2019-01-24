@@ -2,6 +2,7 @@
 
 import { AdapterConfiguration } from './AdapterConfiguration';
 import { ApiError } from './Error/ApiError';
+import { ExecuteMethod } from './ExecuteMethod';
 import { RestAdapter } from './RestAdapter';
 
 /* tslint:disable-next-line:no-var-requires */
@@ -129,13 +130,14 @@ describe('findByIdentifier', () => {
 });
 
 describe('execute', () => {
+    const user = {
+        id: 1,
+        name: 'Ewald Cremin'
+    };
+
     it('success should trigger then()', () => {
         expect.assertions(3);
         fetchMock.resetMocks();
-        const user = {
-            id: 1,
-            name: 'Ewald Cremin'
-        };
 
         const adapter = new RestAdapter(buildTestConfiguration(JSON.stringify(user)));
         const promise = adapter.execute('users/123');
@@ -171,6 +173,36 @@ describe('execute', () => {
             expect(fetchMock.mock.calls.length).toEqual(1);
             expect(fetchMock.mock.calls[0][0]).toEqual('url:users/123');
         });
+    });
+
+    it('POST success should trigger then()', () => {
+        expect.assertions(4);
+        fetchMock.resetMocks();
+
+        const adapter = new RestAdapter(buildTestConfiguration(JSON.stringify(user)));
+        const promise = adapter.execute('users', ExecuteMethod.POST, user);
+
+        return promise.then(result => {
+            expect(result).toEqual(user);
+            expect(fetchMock.mock.calls.length).toEqual(1);
+            expect(fetchMock.mock.calls[0][0]).toEqual('url:users');
+            expect(fetchMock.mock.calls[0][1]).toEqual(
+                {
+                    'body': JSON.stringify(user),
+                    'headers': {
+                        'Content-Type': 'application/json',
+                    },
+                    'method': 'post',
+                }
+            );
+        });
+    });
+
+    it('POST should fail without body', () => {
+        const adapter = new RestAdapter(buildTestConfiguration(''));
+        expect(() => {
+            adapter.execute('users/123', ExecuteMethod.POST);
+        }).toThrowError('Missing request body');
     });
 });
 
