@@ -11,15 +11,24 @@ export interface LoggerInterface {
 
 const replacer = (key: string, value: any) => value === undefined ? null : value;
 
+export interface FormatOptions {
+    /**
+     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_space_argument
+     */
+    space: string | number | undefined
+}
+
 export class Serializer<B extends object> implements SerializerInterface<B> {
-    constructor(private logger?: LoggerInterface) {
+    constructor(private logger?: LoggerInterface, private formatOptions: FormatOptions = {space: undefined}) {
     }
 
     public serialize<T extends object = B>(input: SerializerInput<T> | null): string {
+        const formatOptions = this.formatOptions;
+
         if (Array.isArray(input) || input instanceof Map) {
-            return JSON.stringify(this.prepareFromCollection(input), replacer);
+            return JSON.stringify(this.prepareFromCollection(input), replacer, formatOptions.space);
         } else if (input !== null) {
-            return JSON.stringify(this.convertSingleInput(input), replacer);
+            return JSON.stringify(this.convertSingleInput(input), replacer, formatOptions.space);
         } else {
             return JSON.stringify(null);
         }
