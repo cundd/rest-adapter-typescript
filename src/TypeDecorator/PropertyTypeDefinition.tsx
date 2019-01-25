@@ -1,6 +1,6 @@
 import { ClassConstructorType } from '../ClassConstructorType';
 import { metadataKey } from './MetaDataKey';
-import { PrimitiveTypeEnum } from './PrimitiveTypeEnum';
+import { isPrimitiveTypeEnum, PrimitiveTypeEnum } from './PrimitiveTypeEnum';
 import { PropertyTypeOptions } from './PropertyLevel';
 
 interface PropertyTypeDefinitionInterface<T> {
@@ -36,6 +36,10 @@ export class PropertyTypeDefinition<T> implements PropertyTypeDefinitionInterfac
 
     public isLazy(): boolean {
         return (this.options & PropertyTypeOptions.Lazy) > 0;
+    }
+
+    public isPrimitive(): this is PropertyTypeDefinition<PrimitiveTypeEnum> {
+        return isPrimitiveTypeEnum(this.type);
     }
 }
 

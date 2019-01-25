@@ -7,7 +7,7 @@ import { AddressBook } from './Tests/Fixtures/AddressBook';
 import { BankAccount } from './Tests/Fixtures/BankAccount';
 import { CalendarEvent } from './Tests/Fixtures/CalendarEvent';
 import { Person } from './Tests/Fixtures/Person';
-import { ra_property } from './TypeDecorator/PropertyLevel';
+import { PropertyTypeOptions, ra_property } from './TypeDecorator/PropertyLevel';
 
 function buildAddress(name: string, age: number | string, street: string) {
     const address = new Address();
@@ -97,6 +97,20 @@ class AnyWrapperWithRename {
     public internalSetValue(value: any): this {
         this._value = value;
         return this;
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class StringList {
+    @ra_property(String, PropertyTypeOptions.Multiple, 'items')
+    private readonly _items?: string[];
+
+    get items(): any {
+        return this._items;
+    }
+
+    constructor(items?: string[]) {
+        this._items = items;
     }
 }
 
@@ -203,6 +217,29 @@ describe('serialize', () => {
         event.date = new Date('2018-10-15T19:30:00+02:00');
         const result = serializer.serialize(event);
         expect(result).toBe('{"name":"Birthday Party","date":"2018-10-15T17:30:00.000Z"}');
+    });
+
+    describe('with primitives array', () => {
+        it('without StringList', () => {
+            const serializer = new Serializer();
+
+            const instance = (new StringList());
+            expect(serializer.serialize(instance)).toBe('{"items":null}');
+        });
+
+        it('with empty StringList', () => {
+            const serializer = new Serializer();
+
+            const instance = (new StringList([]));
+            expect(serializer.serialize(instance)).toBe('{"items":[]}');
+        });
+
+        it('with StringList', () => {
+            const serializer = new Serializer();
+
+            const instance = (new StringList(['a', 'b', 'c']));
+            expect(serializer.serialize(instance)).toBe('{"items":["a","b","c"]}');
+        });
     });
 
     describe('with any', () => {

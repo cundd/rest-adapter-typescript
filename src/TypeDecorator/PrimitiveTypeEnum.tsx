@@ -23,14 +23,26 @@ export function typeForTypeName(name: string): PrimitiveTypeEnum | undefined {
     }
 }
 
+/**
+ * Return if value is a primitive type or an instance of a primitive class
+ *
+ * @param value
+ * @return {boolean}
+ */
 export function isPrimitive(value: any): boolean {
-    if (typeof value === 'object') {
-        return false;
+    if (typeof value !== 'object') {
+        return true;
     } else {
         return typeForTypeName(value.constructor.name) !== undefined;
     }
 }
 
+/**
+ * Return if value is neither primitive type nor an instance of a primitive class
+ *
+ * @param value
+ * @return {boolean}
+ */
 export function isNotPrimitive(value: any): value is object {
     return !isPrimitive(value);
 }

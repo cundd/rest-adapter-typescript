@@ -18,6 +18,8 @@ export interface FormatOptions {
     space: string | number | undefined
 }
 
+type CollectionType<T> = T[] | Map<string, T> | Map<number, T>;
+
 export class Serializer<B extends object> implements SerializerInterface<B> {
     constructor(private logger?: LoggerInterface, private formatOptions: FormatOptions = {space: undefined}) {
     }
@@ -26,7 +28,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         const formatOptions = this.formatOptions;
 
         if (Array.isArray(input) || input instanceof Map) {
-            return JSON.stringify(this.prepareFromCollection(input), replacer, formatOptions.space);
+            return JSON.stringify(this.prepareFromCollection(input, undefined), replacer, formatOptions.space);
         } else if (input !== null) {
             return JSON.stringify(this.convertSingleInput(input), replacer, formatOptions.space);
         } else {
@@ -38,15 +40,19 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * Convert a collection of input objects into a single object that can be serialized
      *
      * @param {T[] | Map<string, T> | Map<number, T>} input
+     * @param collectionTypeDefinition
      * @return {object}
      */
-    private prepareFromCollection<T extends object = B>(input: T[] | Map<string, T> | Map<number, T>): object {
+    private prepareFromCollection<T = B>(
+        input: CollectionType<T>,
+        collectionTypeDefinition: PropertyTypeDefinition<T> | undefined
+    ): object {
         if (Array.isArray(input)) {
-            return this.convertArrayCollection(input);
+            return this.convertArrayCollection(input, collectionTypeDefinition);
         } else if (input instanceof Map) {
-            return this.convertMap(input);
+            return this.convertMap(input, collectionTypeDefinition);
         } else {
-            return this.convertObjectCollection(input);
+            return this.convertObjectCollection(input, collectionTypeDefinition);
         }
     }
 
@@ -57,11 +63,32 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * @return {object|null}
      */
     private convertSingleInput<T extends object = B>(input: T): object | null {
+        return this.convertValue(input, undefined);
+    }
+
+    /**
+     * Convert a single object into an object that can be serialized
+     *
+     * @param {T} input
+     * @param typeDefinition
+     * @return {object|null}
+     */
+    private convertValue<T>(
+        input: T,
+        typeDefinition: PropertyTypeDefinition<T> | undefined
+    ): any {
         const target = {};
+
+        // If the Type Definition is given and it is a primitive type treat the value as it
+        if (typeDefinition && isPrimitiveTypeEnum(typeDefinition.type)) {
+            return this.preparePrimitiveProperty(input, typeDefinition.type);
+        }
+
+        // If the input is not some kind of primitive type it must be an object
+        this.assertObject(input);
         if (input instanceof Date) {
             return input;
         }
-        this.assertObject(input);
         if (input === null) {
             return null;
         }
@@ -78,10 +105,14 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * This method is used to convert an input array
      *
      * @param {I} input
+     * @param collectionTypeDefinition
      * @return {T[]}
      */
-    private convertArrayCollection<I, T>(input: I): object[] {
-        return Array.prototype.map.call(input, (item: object) => this.convertSingleInput(item));
+    private convertArrayCollection<T>(
+        input: T[],
+        collectionTypeDefinition: PropertyTypeDefinition<T> | undefined
+    ): object[] {
+        return Array.prototype.map.call(input, (item: T) => this.convertValue(item, collectionTypeDefinition));
     }
 
     /**
@@ -90,14 +121,18 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * This method is used to convert a dictionary or Map
      *
      * @param {I} input
+     * @param collectionTypeDefinition
      * @return {object}
      */
-    private convertMap<T extends object>(input: Map<number | string, T>): object {
+    private convertMap<T>(
+        input: Map<number | string, T>,
+        collectionTypeDefinition: PropertyTypeDefinition<T> | undefined
+    ): object {
         const targetObject = {};
 
         input.forEach(
             (value, key) => {
-                targetObject[key] = this.convertSingleInput(value);
+                targetObject[key] = this.convertValue(value, collectionTypeDefinition);
             }
         );
 
@@ -110,15 +145,19 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * This method is used to convert a dictionary or Map
      *
      * @param {I} input
+     * @param typeDefinition
      * @return {object}
      */
-    private convertObjectCollection<T>(input: T): object {
+    private convertObjectCollection<T>(
+        input: T,
+        typeDefinition: PropertyTypeDefinition<T> | undefined
+    ): object {
         const targetObject = {};
 
         this.assertObject(input);
         Object.keys(input).forEach(
             key => {
-                targetObject[key] = this.convertSingleInput(input[key]);
+                targetObject[key] = this.convertValue(input[key], typeDefinition);
             }
         );
 
@@ -137,59 +176,54 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
             ? typeDefinition.rename
             : property;
 
-        target[targetKey] = this.prepareSourceValue(
-            instance,
+        target[targetKey] = this.prepareProperty(
+            instance[property],
             property,
             typeDefinition
         );
     }
 
-    private prepareSourceValue<T>(
-        source: T,
-        sourceKey: string,
+    private prepareProperty<T>(
+        value: T | CollectionType<T>,
+        key: string,
         typeDefinition: PropertyTypeDefinition<T>
     ) {
-        const sourceValue = source[sourceKey];
-
         const type = typeDefinition.type;
 
         // Handle `null` or `undefined`
-        if (sourceValue === null || sourceValue === undefined) {
+        if (value === null || value === undefined) {
             return null;
         }
 
         // Handle generic objects or untyped values
         if (typeof type === 'function' && type === Object.prototype.constructor) {
-            return sourceValue;
-        }
-
-        // If `type` is a primitive type check if the source value already has the correct type
-        if (isPrimitiveTypeEnum(type)) {
-            if (typeof sourceValue === typeNameForEnum(type).toLowerCase()) {
-                return sourceValue;
-            } else if (typeof sourceValue === 'object' && sourceValue.constructor.name === typeNameForEnum(type)) {
-                return sourceValue;
-            }
-
-            if (type === PrimitiveTypeEnum.Boolean) {
-                return !!(sourceValue);
-            } else if (type === PrimitiveTypeEnum.Number) {
-                return parseFloat(sourceValue);
-            } else if (type === PrimitiveTypeEnum.String) {
-                return '' + sourceValue;
-            } else if (type === PrimitiveTypeEnum.Null) {
-                return null;
-            } else if (type === PrimitiveTypeEnum.Undefined) {
-                return undefined;
-            }
+            return value;
         }
 
         if (undefined === type) {
-            return sourceValue;
-        } else if (typeDefinition.hasMultiple()) {
-            return this.prepareFromCollection(sourceValue);
-        } else {
-            return this.convertSingleInput(sourceValue);
+            return value;
+        }
+
+        try {
+            if (typeDefinition.hasMultiple()) {
+                return this.prepareFromCollection(value as CollectionType<T>, typeDefinition);
+            }
+
+            // If `type` is a primitive type check if the source value already has the correct type
+            if (isPrimitiveTypeEnum(type)) {
+                return this.preparePrimitiveProperty(value, type);
+            }
+
+            return this.convertValue(value, typeDefinition);
+        } catch (error) {
+            if (error instanceof SerializationError) {
+                throw new SerializationError(
+                    `Error while serializing value for key '${key}': ${error.message}`,
+                    error.meta
+                );
+            } else {
+                throw error;
+            }
         }
     }
 
@@ -228,5 +262,35 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         if (typeof input !== 'object') {
             throw new SerializationError(`Argument 'input' must be an object, '${typeof input}' given`);
         }
+    }
+
+    private preparePrimitiveProperty<T>(
+        value: T[] | Map<string, T> | Map<number, T> | T,
+        type: PrimitiveTypeEnum
+    ) {
+        // E.g. `"string" === "String".toLowerCase()`
+        const typeName = typeNameForEnum(type);
+        if (typeof value === typeName.toLowerCase()) {
+            return value;
+        }
+
+        // E.g. `"text".constructor.name === "String"`
+        if (typeof value === 'object' && value.constructor.name === typeName) {
+            return value;
+        }
+
+        if (type === PrimitiveTypeEnum.Boolean) {
+            return !!(value);
+        } else if (type === PrimitiveTypeEnum.Number) {
+            return parseFloat('' + value);
+        } else if (type === PrimitiveTypeEnum.String) {
+            return '' + value;
+        } else if (type === PrimitiveTypeEnum.Null) {
+            return null;
+        } else if (type === PrimitiveTypeEnum.Undefined) {
+            return undefined;
+        }
+
+        return undefined;
     }
 }

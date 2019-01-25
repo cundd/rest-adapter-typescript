@@ -1,7 +1,7 @@
 /* tslint:disable:unified-signatures */
 import 'reflect-metadata';
 import { ClassConstructorType } from '../ClassConstructorType';
-import { PrimitiveTypeEnum, typeForTypeName } from './PrimitiveTypeEnum';
+import { isPrimitiveTypeEnum, PrimitiveTypeEnum, typeForTypeName } from './PrimitiveTypeEnum';
 import { metadataKey, PropertyTypeDefinition } from './PropertyTypeDefinition';
 
 // type RaPropertyAttributes<T> = ClassConstructorType<T> | string | number | undefined;
@@ -148,6 +148,9 @@ export function ra_property<T>(...args: any[]) {
             } else {
                 type = undefined;
             }
+        } else if (!isPrimitiveTypeEnum(type)) {
+            // Check if the Class name belongs to a primitive class (e.g. `String`, `Number`)
+            type = typeForTypeName(type.name) || type;
         }
 
         const propertyTypeDefinition = new PropertyTypeDefinition(type, options, propertyKey, rename);
