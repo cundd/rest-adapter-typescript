@@ -1,1 +1,1 @@
-export const metadataKey = 'rest:design:type';
+export const metadataKey = Symbol('rest:design:type');
