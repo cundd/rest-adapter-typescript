@@ -8,6 +8,7 @@ import { BankAccount } from './Tests/Fixtures/BankAccount';
 import { CalendarEvent } from './Tests/Fixtures/CalendarEvent';
 import { Nested, NestedWithInterface, NestedWithParentAndInterface } from './Tests/Fixtures/Nested';
 import { Person } from './Tests/Fixtures/Person';
+import { WithPostConstruct } from './Tests/Fixtures/WithPostConstruct';
 import { checkAddress, checkClass, checkPerson } from './Tests/Helper';
 
 describe('convertSingle', () => {
@@ -85,6 +86,18 @@ describe('convertSingle', () => {
             }
         );
         checkAddress(result, 'Daniel', 31, 'Mainstreet 123');
+    });
+
+    it('with call to postConstruct', () => {
+        const converter = new Converter<Address>();
+        const result = converter.convertSingle(
+            WithPostConstruct,
+            {}
+        );
+        expect(result).toBeDefined();
+        if (result) {
+            expect(result.value).toBe('initialized');
+        }
     });
 
     it('with class AddressBook (contacts array-collection)', () => {

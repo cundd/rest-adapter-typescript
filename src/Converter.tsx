@@ -70,6 +70,10 @@ export class Converter<B> implements ConverterInterface<B> {
                 this.assignProperty(newInstance, key, input);
             }
 
+            if (typeof newInstance['postConstruct'] === 'function') {
+                newInstance['postConstruct']();
+            }
+
             return newInstance;
         } else {
             return new target(input);
