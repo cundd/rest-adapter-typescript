@@ -176,5 +176,6 @@ export function ra_property<T>(...args: any[]) {
 export enum PropertyTypeOptions {
     None = 0b00000,
     Multiple = 0b00001,
+    NoSerialization = 0b00100,
     Lazy = 0b00010, // Not implemented yet
 }

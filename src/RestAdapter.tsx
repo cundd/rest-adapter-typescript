@@ -194,7 +194,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
             {
                 method: 'post',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
+                body: typeof body !== 'string' ? JSON.stringify(body) : body
             },
             config.requestSettings
         );

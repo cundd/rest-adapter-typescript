@@ -31,6 +31,20 @@ enum NumberEnum {
 }
 
 // tslint:disable-next-line:max-classes-per-file
+class PrivateData {
+    @ra_property()
+    public name: string;
+
+    @ra_property(String, PropertyTypeOptions.NoSerialization)
+    public privateKey: string;
+
+    constructor(name: string, privateKey: string) {
+        this.name = name;
+        this.privateKey = privateKey;
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
 class StringEnumWrapper {
     @ra_property()
     public state?: StringEnum;
@@ -217,6 +231,16 @@ describe('serialize', () => {
         event.date = new Date('2018-10-15T19:30:00+02:00');
         const result = serializer.serialize(event);
         expect(result).toBe('{"name":"Birthday Party","date":"2018-10-15T17:30:00.000Z"}');
+    });
+
+    it('with PrivateData', () => {
+        const serializer = new Serializer<CalendarEvent>();
+        const data = new PrivateData(
+            'Daniel',
+            '-----BEGIN RSA PRIVATE KEY-----\nMIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTC'
+        );
+        const result = serializer.serialize(data);
+        expect(result).toBe('{"name":"Daniel"}');
     });
 
     describe('with primitives array', () => {

@@ -171,6 +171,11 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
 
             return;
         }
+
+        if (typeDefinition.noSerialization()) {
+            return;
+        }
+
         // Look if there is a Property Type Definition for the property
         const targetKey = typeDefinition.rename
             ? typeDefinition.rename

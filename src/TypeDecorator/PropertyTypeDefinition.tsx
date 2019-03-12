@@ -34,6 +34,10 @@ export class PropertyTypeDefinition<T> implements PropertyTypeDefinitionInterfac
         return (this.options & PropertyTypeOptions.Multiple) > 0;
     }
 
+    public noSerialization(): boolean {
+        return (this.options & PropertyTypeOptions.NoSerialization) > 0;
+    }
+
     public isLazy(): boolean {
         return (this.options & PropertyTypeOptions.Lazy) > 0;
     }
