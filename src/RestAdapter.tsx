@@ -136,7 +136,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
                 } catch (e) {
                     reject(buildError(JsonError, e));
 
-                    return;
+                    return undefined;
                 }
             } else {
                 // If there was an error look if a JSON body is given
