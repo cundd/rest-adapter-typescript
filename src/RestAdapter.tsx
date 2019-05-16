@@ -251,7 +251,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         resolve: ResolveCallback<T>,
         reject: RejectCallback
     ) {
-        this.validator.validateSingleResult(result, resolve, reject);
+        this.validator.validateSingleResult(result, resolve as ResolveCallback<T | null>, reject);
     }
 
     private checkPostResult<T>(
@@ -259,6 +259,6 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         resolve: ResolveCallback<T>,
         reject: RejectCallback
     ) {
-        this.validator.validateSingleResult(result, resolve, reject);
+        this.validator.validateSingleResult(result, resolve as ResolveCallback<T | null>, reject);
     }
 }

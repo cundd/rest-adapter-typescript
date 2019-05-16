@@ -1,13 +1,17 @@
 import 'reflect-metadata';
 import { ClassConstructorType } from './ClassConstructorType';
 import { ConverterInterface } from './ConverterInterface';
+import { Dictionary, ParDict } from './Dictionary';
 import { ConverterTypeError } from './Error/ConverterTypeError';
+import { LoggerInterface } from './LoggerInterface';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { isNotPrimitive, PrimitiveTypeEnum } from './TypeDecorator/PrimitiveTypeEnum';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
 
-export interface LoggerInterface {
-    log: (message: string, ...args: any[]) => void;
+type MapFunctionResult<R> = R | undefined | null | any;
+
+function map<T, R, I = T[] | any>(collection: I, cb: (item: T) => MapFunctionResult<R>): MapFunctionResult<R>[] {
+    return Array.prototype.map.call(collection, cb as any) as MapFunctionResult<R>;
 }
 
 export class Converter<B> implements ConverterInterface<B> {
@@ -55,9 +59,9 @@ export class Converter<B> implements ConverterInterface<B> {
      * @param {object | null | string} input
      * @return {T | null}
      */
-    private convertSingleInput<T = B>(
+    private convertSingleInput<T = B, I = Partial<Dictionary<T>>>(
         target: ClassConstructorType<T>,
-        input: object | null | string
+        input: I
     ): T | null {
         if (!input) {
             return null;
@@ -90,10 +94,7 @@ export class Converter<B> implements ConverterInterface<B> {
      * @return {T[]}
      */
     private convertArrayCollection<I, T>(target: ClassConstructorType<T>, input: I): T[] {
-        return Array.prototype.map.call(
-            input,
-            (item: object) => this.convertSingleInput(target, item)
-        )
+        return map(input, (item: object) => this.convertSingleInput(target, item))
             .filter((i: I) => null !== i);
     }
 
@@ -106,7 +107,7 @@ export class Converter<B> implements ConverterInterface<B> {
      * @param {I} input
      * @return {Map<string, T>}
      */
-    private convertObjectCollection<I, T>(target: ClassConstructorType<T>, input: I): Map<string, T> {
+    private convertObjectCollection<I extends Partial<Dictionary<T>>, T>(target: ClassConstructorType<T>, input: I): Map<string, T> {
         const targetObject: Map<string, T> = new Map();
 
         if (typeof input !== 'object') {
@@ -114,7 +115,8 @@ export class Converter<B> implements ConverterInterface<B> {
         }
         Object.keys(input).forEach(
             key => {
-                const convertedInstance = this.convertSingleInput(target, input[key]);
+                const inputValue = input[key];
+                const convertedInstance = this.convertSingleInput(target, inputValue);
                 if (convertedInstance) {
                     targetObject.set(key, convertedInstance);
                 }
@@ -123,7 +125,7 @@ export class Converter<B> implements ConverterInterface<B> {
         return targetObject;
     }
 
-    private assignProperty<T>(target: T, sourceKey: string, source: object) {
+    private assignProperty<T extends ParDict>(target: T, sourceKey: string, source: object) {
         const typeDefinition = PropertyTypeDefinition.fromObject<T>(target, sourceKey);
 
         // Look if there is a Property Type Definition for the source key
@@ -142,8 +144,8 @@ export class Converter<B> implements ConverterInterface<B> {
         }
     }
 
-    private prepareSourceValue<T>(
-        source: object,
+    private prepareSourceValue<T, S extends ParDict>(
+        source: S,
         sourceKey: string,
         typeDefinition: PropertyTypeDefinition<T>
     ) {
@@ -181,7 +183,7 @@ export class Converter<B> implements ConverterInterface<B> {
      * @param {string} sourceKey
      * @param source
      */
-    private handleSourcePropertyWithoutDefinition<T, S>(
+    private handleSourcePropertyWithoutDefinition<T extends ParDict, S extends ParDict>(
         target: T,
         sourceKey: string,
         source: S

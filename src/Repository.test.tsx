@@ -6,13 +6,13 @@ import { Converter as ConverterClass } from './Converter';
 import { ConverterInterface } from './ConverterInterface';
 import { Repository } from './Repository';
 import { RestAdapter as RestAdapterClass } from './RestAdapter';
-import MockInstance = jest.MockInstance;
 import DoneCallback = jest.DoneCallback;
-// jest.mock('./sound-player'); // SoundPlayer is now a mock constructor
+import MockInstance = jest.MockInstance;
+
 jest.mock('./Converter');
 jest.mock('./RestAdapter');
-const RestAdapter: MockInstance<RestAdapterClass> = (RestAdapterClass as any);
-const Converter: MockInstance<ConverterInterface<any>> = (ConverterClass as any);
+const RestAdapter: MockInstance<RestAdapterClass, any> = (RestAdapterClass as any);
+const Converter: MockInstance<ConverterInterface<any>, any> = (ConverterClass as any);
 
 class Simple {
     public name: string = 'Daniel';
@@ -27,17 +27,18 @@ beforeEach(() => {
 describe('Converter', () => {
     const simple = new Simple();
 
-    const AdapterMock = jest.fn<AdapterInterface>(() => ({
+    const AdapterMock = jest.fn<AdapterInterface, any>(() => ({
         findAll: jest.fn(() => {
-            return Promise.resolve([simple]);
+            return Promise.resolve([simple]) as any;
         }),
         findByIdentifier: jest.fn(() => {
-            return Promise.resolve(simple);
+            return Promise.resolve(simple) as any;
         }),
     }));
 
     it('Converter should be invoked for findAll()', (done: DoneCallback) => {
-        const ConverterMock = jest.fn<ConverterInterface<any>>(() => ({
+        const ConverterMock = jest.fn<ConverterInterface<any>, any>(() => ({
+            // @ts-ignore
             convertCollection: jest.fn((targetType: ClassConstructorType<Simple>, input: Simple[]) => {
                 expect(input[0]).toEqual(simple);
                 done();
@@ -55,7 +56,8 @@ describe('Converter', () => {
     });
 
     it('Converter should be invoked for findByIdentifier()', (done: DoneCallback) => {
-        const ConverterMock = jest.fn<ConverterInterface<any>>(() => ({
+        const ConverterMock = jest.fn<ConverterInterface<any>, any>(() => ({
+            // @ts-ignore
             convertSingle: jest.fn((targetType: ClassConstructorType<Simple>, input: Simple) => {
                 expect(input).toEqual(simple);
                 done();

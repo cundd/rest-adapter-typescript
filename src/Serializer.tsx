@@ -1,13 +1,11 @@
 import 'reflect-metadata';
+import { ParDict } from './Dictionary';
 import { SerializationError } from './Error/SerializationError';
+import { LoggerInterface } from './LoggerInterface';
 import { SerializerInput, SerializerInterface } from './SerializerInterface';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { isPrimitiveTypeEnum, PrimitiveTypeEnum, typeNameForEnum } from './TypeDecorator/PrimitiveTypeEnum';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
-
-export interface LoggerInterface {
-    log: (message: string, ...args: any[]) => void;
-}
 
 const replacer = (key: string, value: any) => value === undefined ? null : value;
 
@@ -128,7 +126,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         input: Map<number | string, T>,
         collectionTypeDefinition: PropertyTypeDefinition<T> | undefined
     ): object {
-        const targetObject = {};
+        const targetObject: ParDict = {};
 
         input.forEach(
             (value, key) => {
@@ -148,11 +146,11 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * @param typeDefinition
      * @return {object}
      */
-    private convertObjectCollection<T>(
+    private convertObjectCollection<T extends ParDict>(
         input: T,
         typeDefinition: PropertyTypeDefinition<T> | undefined
     ): object {
-        const targetObject = {};
+        const targetObject: ParDict = {};
 
         this.assertObject(input);
         Object.keys(input).forEach(
@@ -164,8 +162,12 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         return targetObject;
     }
 
-    private serializeProperty<T>(target: object, property: string, instance: T) {
-        const typeDefinition = PropertyTypeDefinition.fromObject<T>(instance, property);
+    private serializeProperty<T extends ParDict, C extends ParDict>(
+        target: T,
+        property: string,
+        instance: C
+    ) {
+        const typeDefinition = PropertyTypeDefinition.fromObject<C>(instance, property);
         if (!typeDefinition) {
             this.handleSourcePropertyWithoutDefinition(target, property, instance);
 
@@ -239,7 +241,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      * @param {string} sourceKey
      * @param source
      */
-    private handleSourcePropertyWithoutDefinition<T, S>(
+    private handleSourcePropertyWithoutDefinition<T extends ParDict, S extends ParDict>(
         target: T,
         sourceKey: string,
         source: S
