@@ -450,6 +450,6 @@ describe('Handle unknown fields', () => {
                     newProperty: 'something new'
                 }
             );
-        }).toThrow('Property \'newProperty\' could not be found in \'CalendarEvent\'');
+        }).toThrow('Property \'newProperty\' could not be found in \'(object) CalendarEvent\'');
     });
 });

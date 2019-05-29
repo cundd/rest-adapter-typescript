@@ -598,6 +598,6 @@ describe('Handle unknown fields', () => {
             event['newProperty'] = 'something new';
 
             serializer.serialize(event);
-        }).toThrow('Property \'newProperty\' in \'CalendarEvent\' could not be found');
+        }).toThrow('Property \'newProperty\' in \'(object) CalendarEvent\' could not be found');
     });
 });

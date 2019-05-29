@@ -107,7 +107,10 @@ export class Converter<B> implements ConverterInterface<B> {
      * @param {I} input
      * @return {Map<string, T>}
      */
-    private convertObjectCollection<I extends Partial<Dictionary<T>>, T>(target: ClassConstructorType<T>, input: I): Map<string, T> {
+    private convertObjectCollection<I extends Partial<Dictionary<T>>, T>(
+        target: ClassConstructorType<T>,
+        input: I
+    ): Map<string, T> {
         const targetObject: Map<string, T> = new Map();
 
         if (typeof input !== 'object') {
@@ -200,17 +203,30 @@ export class Converter<B> implements ConverterInterface<B> {
         }
 
         if (classTypeDefinition.denyUnknownFields()) {
-            throw new ConverterTypeError(`Property '${sourceKey}' could not be found in '${target.constructor.name}'`);
+            throw new ConverterTypeError(`Property '${sourceKey}' could not be found in '${this.inspectType(target)}'`);
         }
 
         if (classTypeDefinition.addUnknownFields()) {
             const newTargetKey = this.detectNewPropertyTargetKey(target, sourceKey);
             if (newTargetKey === null) {
-                throw new ConverterTypeError(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
+                throw new ConverterTypeError(`Property '${sourceKey}' could not be set in '${this.inspectType(target)}'`);
             }
 
             target[newTargetKey] = sourceValue;
         }
+    }
+
+    private inspectType<S extends ParDict>(input: S) {
+        const type = typeof input;
+
+        if (input === null) {
+            return '(object) null';
+        }
+        if (type === 'object') {
+            return '(object) ' + input.constructor.name;
+        }
+
+        return '(' + type + ')';
     }
 
     private detectNewPropertyTargetKey<T>(newInstance: T | object, sourceKey: string) {

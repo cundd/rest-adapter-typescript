@@ -218,6 +218,6 @@ describe('Handle unknown fields', () => {
                 CalendarEvent,
                 '{"name":"Birthday Party","date":"2018-10-15T17:30:00.000Z","newProperty":"something new"}'
             );
-        }).toThrow('Property \'newProperty\' could not be found in \'CalendarEvent\'');
+        }).toThrow('Property \'newProperty\' could not be found in \'(object) CalendarEvent\'');
     });
 });
