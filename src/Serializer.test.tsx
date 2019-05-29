@@ -1,4 +1,5 @@
 /* tslint:disable:no-any */
+/* tslint:disable:max-classes-per-file */
 
 import { Serializer } from './Serializer';
 import { Accessors } from './Tests/Fixtures/Accessors';
@@ -30,7 +31,6 @@ enum NumberEnum {
     Off = 0
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class PrivateData {
     @ra_property()
     public name: string;
@@ -44,7 +44,19 @@ class PrivateData {
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
+class WrapperWithRename {
+    @ra_property()
+    public name: string;
+
+    @ra_property(Person, 'person')
+    public _person: Person;
+
+    constructor(name: string, person: Person) {
+        this.name = name;
+        this._person = person;
+    }
+}
+
 class StringEnumWrapper {
     @ra_property()
     public state?: StringEnum;
@@ -54,7 +66,6 @@ class StringEnumWrapper {
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class NumberEnumWrapper {
     @ra_property()
     public state?: NumberEnum;
@@ -64,7 +75,6 @@ class NumberEnumWrapper {
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class GenericEnumWrapper<T extends (NumberEnum | StringEnum)> {
     @ra_property()
     public state?: T;
@@ -74,7 +84,6 @@ class GenericEnumWrapper<T extends (NumberEnum | StringEnum)> {
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class EnumWrapperWithRename {
     @ra_property('state')
     private readonly _state?: StringEnum;
@@ -88,7 +97,6 @@ class EnumWrapperWithRename {
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class AnyWrapper {
     @ra_property()
     public value: any;
@@ -99,7 +107,6 @@ class AnyWrapper {
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class AnyWrapperWithRename {
     @ra_property('value')
     private _value: any;
@@ -114,7 +121,6 @@ class AnyWrapperWithRename {
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class StringList {
     @ra_property(String, PropertyTypeOptions.Multiple, 'items')
     private readonly _items?: string[];
@@ -145,13 +151,11 @@ describe('serialize', () => {
         // tslint:disable:no-construct
         // noinspection JSPrimitiveTypeWrapperUsage,UnnecessaryLocalVariableJS
         const stringObject = new String('Daniel');
-        // @ts-ignore
-        person.name = stringObject;
+        person.name = stringObject as string;
 
         // noinspection JSPrimitiveTypeWrapperUsage,UnnecessaryLocalVariableJS
         const numberObject = new Number(31);
-        // @ts-ignore
-        person.age = numberObject;
+        person.age = numberObject as number;
 
         const serializer = new Serializer();
         const result = serializer.serialize(person);
@@ -241,6 +245,18 @@ describe('serialize', () => {
         );
         const result = serializer.serialize(data);
         expect(result).toBe('{"name":"Daniel"}');
+    });
+
+    it('with property renaming', () => {
+        const person = new Person();
+        person.name = 'Daniel';
+        const serializer = new Serializer<CalendarEvent>();
+        const data = new WrapperWithRename(
+            'Burrito',
+            person
+        );
+        const result = serializer.serialize(data);
+        expect(result).toBe('{"name":"Burrito","person":{"name":"Daniel"}}');
     });
 
     describe('with primitives array', () => {

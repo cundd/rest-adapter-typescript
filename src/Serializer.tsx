@@ -174,14 +174,38 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
             return;
         }
 
+        const logger = this.logger;
         if (typeDefinition.noSerialization()) {
+            if (logger) {
+                logger.debug(`[Serializer] Property '${property}' marked to prevent serialization`);
+            }
             return;
         }
 
         // Look if there is a Property Type Definition for the property
-        const targetKey = typeDefinition.rename
-            ? typeDefinition.rename
-            : property;
+        let targetKey: string;
+        if (typeDefinition.rename) {
+            targetKey = typeDefinition.rename;
+            if (logger) {
+                logger.debug(`[Serializer] Rename '${property}' to '${targetKey}'`);
+            }
+        } else {
+            targetKey = property;
+        }
+
+        if (logger) {
+            const prepared = this.prepareProperty(
+                instance[property],
+                property,
+                typeDefinition
+            );
+
+            logger.debug(
+                `[Serializer] Serialize property '${property}' `
+                + `of type '${this.inspectType(instance[property])}' `
+                + `to type '${this.inspectType(prepared)}'`
+            );
+        }
 
         target[targetKey] = this.prepareProperty(
             instance[property],
@@ -246,23 +270,41 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         sourceKey: string,
         source: S
     ) {
+        const logger = this.logger;
+
         const sourceValue = source[sourceKey];
         const classTypeDefinition = ClassTypeDefinition.fromObject(source);
         if (!classTypeDefinition || classTypeDefinition.ignoreUnknownFields()) {
-            if (this.logger) {
-                this.logger.log(`Property '${sourceKey}' in '${source.constructor.name}' could not be serialized'`);
+            if (logger) {
+                logger.log(`[Serializer] Property '${sourceKey}' in '${this.inspectType(source)}' could not be serialized'`);
             }
 
             return;
         }
 
         if (classTypeDefinition.denyUnknownFields()) {
-            throw new SerializationError(`Property '${sourceKey}' in '${source.constructor.name}' could not be found`);
+            throw new SerializationError(`Property '${sourceKey}' in '${this.inspectType(source)}' could not be found`);
         }
 
         if (classTypeDefinition.addUnknownFields()) {
+            if (logger) {
+                logger.debug(`[Serializer] Serialize unknown property '${sourceKey}' of '${this.inspectType(source)}' could not be serialized'`);
+            }
             target[sourceKey] = sourceValue;
         }
+    }
+
+    private inspectType<S extends ParDict>(input: S) {
+        const type = typeof input;
+
+        if (input === null) {
+            return '(object) null';
+        }
+        if (type === 'object') {
+            return '(object) ' + input.constructor.name;
+        }
+
+        return '(' + type + ')';
     }
 
     private assertObject(input: any) {
