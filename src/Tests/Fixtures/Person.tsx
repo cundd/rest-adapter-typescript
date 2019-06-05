@@ -6,4 +6,7 @@ export class Person {
 
     @ra_property()
     public age: number;
+
+    @ra_property()
+    public isDeveloper: boolean;
 }

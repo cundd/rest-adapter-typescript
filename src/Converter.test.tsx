@@ -19,9 +19,21 @@ describe('convertSingle', () => {
             {
                 name: 'Daniel',
                 age: 31,
+                isDeveloper: 1,
             }
         );
-        checkPerson(result, Person, 'Daniel', 31);
+        checkPerson(result, Person, 'Daniel', 31, true);
+    });
+    it('with class Person with undefined isDeveloper', () => {
+        const converter = new Converter();
+        const result = converter.convertSingle(
+            Person,
+            {
+                name: 'Daniel',
+                age: 31
+            }
+        );
+        checkPerson(result, Person, 'Daniel', 31, undefined);
     });
 
     it('with class Person with undefined age', () => {

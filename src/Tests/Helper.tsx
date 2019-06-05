@@ -12,12 +12,16 @@ export const checkPerson = (
     result: any,
     ctor: (new () => any),
     name: string,
-    age: number | undefined | null
+    age: number | undefined | null,
+    isDeveloper?: boolean
 ) => {
     checkClass(result, ctor);
     if (result) {
         expect(result.name).toEqual(name);
         expect(result.age).toEqual(age);
+        if (typeof isDeveloper !== 'undefined') {
+            expect(result.isDeveloper).toEqual(isDeveloper);
+        }
     }
 };
 export const checkAddress = (
