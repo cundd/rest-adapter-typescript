@@ -102,9 +102,9 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * This method is used to convert an input array
      *
-     * @param {I} input
-     * @param collectionTypeDefinition
-     * @return {T[]}
+     * @param {T[]} input
+     * @param {PropertyTypeDefinition<T> | undefined} collectionTypeDefinition
+     * @return {object[]}
      */
     private convertArrayCollection<T>(
         input: T[],
@@ -118,8 +118,8 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * This method is used to convert a dictionary or Map
      *
-     * @param {I} input
-     * @param collectionTypeDefinition
+     * @param {Map<number | string, T>} input
+     * @param {PropertyTypeDefinition<T> | undefined} collectionTypeDefinition
      * @return {object}
      */
     private convertMap<T>(
@@ -142,8 +142,8 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * This method is used to convert a dictionary or Map
      *
-     * @param {I} input
-     * @param typeDefinition
+     * @param {T} input
+     * @param {PropertyTypeDefinition<T> | undefined} typeDefinition
      * @return {object}
      */
     private convertObjectCollection<T extends ParDict>(
@@ -324,7 +324,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         }
 
         // E.g. `"text".constructor.name === "String"`
-        if (typeof value === 'object' && value.constructor.name === typeName) {
+        if (value && typeof value === 'object' && value.constructor.name === typeName) {
             return value;
         }
 
