@@ -137,7 +137,7 @@ export class Converter<B> implements ConverterInterface<B> {
             : sourceKey;
 
         if (typeDefinition) {
-            target[targetKey] = this.prepareSourceValue(
+            (target as ParDict)[targetKey] = this.prepareSourceValue(
                 source,
                 sourceKey,
                 typeDefinition
@@ -212,7 +212,7 @@ export class Converter<B> implements ConverterInterface<B> {
                 throw new ConverterTypeError(`Property '${sourceKey}' could not be set in '${this.inspectType(target)}'`);
             }
 
-            target[newTargetKey] = sourceValue;
+            (target as ParDict)[newTargetKey] = sourceValue;
         }
     }
 
@@ -229,7 +229,7 @@ export class Converter<B> implements ConverterInterface<B> {
         return '(' + type + ')';
     }
 
-    private detectNewPropertyTargetKey<T>(newInstance: T | object, sourceKey: string) {
+    private detectNewPropertyTargetKey<T extends object>(newInstance: T | object, sourceKey: string) {
         if (this.hasPropertyWriteAccess(newInstance, sourceKey)) {
             return sourceKey;
         } else if (this.hasPropertyWriteAccess(newInstance, '_' + sourceKey)) {
@@ -239,9 +239,9 @@ export class Converter<B> implements ConverterInterface<B> {
         }
     }
 
-    private hasPropertyWriteAccess<T>(instance: T | object, key: string) {
+    private hasPropertyWriteAccess<T extends object>(instance: T | object, key: string) {
         const descriptor = Object.getOwnPropertyDescriptor(instance, key)
-            || Object.getOwnPropertyDescriptor(instance.constructor.prototype, key);
+            || Object.getOwnPropertyDescriptor((instance as object).constructor.prototype, key);
         if (!descriptor) {
             return true;
         }

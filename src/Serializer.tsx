@@ -207,7 +207,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
             );
         }
 
-        target[targetKey] = this.prepareProperty(
+        (target as ParDict)[targetKey] = this.prepareProperty(
             instance[property],
             property,
             typeDefinition
@@ -290,7 +290,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
             if (logger) {
                 logger.debug(`[Serializer] Serialize unknown property '${sourceKey}' of '${this.inspectType(source)}' could not be serialized'`);
             }
-            target[sourceKey] = sourceValue;
+            (target as ParDict)[sourceKey] = sourceValue;
         }
     }
 
@@ -324,7 +324,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         }
 
         // E.g. `"text".constructor.name === "String"`
-        if (value && typeof value === 'object' && value.constructor.name === typeName) {
+        if (value && typeof value === 'object' && (value as object).constructor.name === typeName) {
             return value;
         }
 

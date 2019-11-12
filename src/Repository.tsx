@@ -46,16 +46,16 @@ export class Repository<T> implements RepositoryInterface<T>, RepositoryExecuteI
     public findByIdentifier(identifier: IdentifierInterface): Promise<T | null> {
         return this._adapter
             .findByIdentifier(this._resourceType, identifier)
-            .then(result => this._converter.convertSingle(this._targetType, result));
+            .then(result => this._converter.convertSingle(this._targetType, result as object | null));
     }
 
     /**
      * Perform a GET or POST request to the given API path
      *
      * @param {string} subPath
-     * @param {string} method
+     * @param {ExecuteMethod} method
      * @param {I} body
-     * @return {Promise<R>}
+     * @return {Promise<T[] | Map<string, T> | T | null>}
      */
     public execute<I>(
         subPath: string,
