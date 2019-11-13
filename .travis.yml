@@ -10,6 +10,9 @@ env:
 
 before_install:
   - npm install typescript@$TYPESCRIPT
+
+install: npm install
+
 script:
   - npm test
 
