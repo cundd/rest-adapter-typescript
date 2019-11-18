@@ -196,7 +196,12 @@ export class Converter<B> implements ConverterInterface<B> {
 
         if (!classTypeDefinition || classTypeDefinition.ignoreUnknownFields()) {
             if (this.logger) {
-                this.logger.log(`Property '${sourceKey}' could not be set in '${target.constructor.name}'`);
+                const message = `Property '${sourceKey}' could not be set in '${target.constructor.name}': `;
+                if (!classTypeDefinition) {
+                    this.logger.log(message + 'No class type definition found');
+                } else if (!classTypeDefinition.ignoreUnknownFields()) {
+                    this.logger.log(message + 'Unknown fields are ignored');
+                }
             }
 
             return;
