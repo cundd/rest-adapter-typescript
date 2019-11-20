@@ -57,15 +57,15 @@ export class Repository<T> implements RepositoryInterface<T>, RepositoryExecuteI
      * @param {I} body
      * @return {Promise<T[] | Map<string, T> | T | null>}
      */
-    public execute<I>(
+    public execute<I, R = T[] | Map<string, T> | T | null>(
         subPath: string,
         method: ExecuteMethod = ExecuteMethod.GET,
         body?: I
-    ): Promise<T[] | Map<string, T> | T | null> {
+    ): Promise<R> {
         if (!(this._adapter instanceof RestAdapter)) {
             throw new TypeError('Not implemented');
         }
-        const onfulfilled = (result: object | object[] | null) => {
+        const onFulfilled = (result: any) => {
             if (Array.isArray(result)) {
                 return this._converter.convertCollection(this._targetType, result);
             } else {
@@ -78,7 +78,7 @@ export class Repository<T> implements RepositoryInterface<T>, RepositoryExecuteI
         if (method === 'GET') {
             return this._adapter
                 .execute(requestPath)
-                .then(onfulfilled);
+                .then(onFulfilled) as Promise<R>;
         } else if (method === 'POST') {
             if (arguments.length < 3) {
                 throw new ReferenceError('Missing request body');
@@ -86,7 +86,7 @@ export class Repository<T> implements RepositoryInterface<T>, RepositoryExecuteI
 
             return this._adapter
                 .execute(requestPath, method, body)
-                .then(onfulfilled);
+                .then(onFulfilled) as Promise<R>;
         } else {
             throw new TypeError(`Method '${method}' is not implemented`);
         }
