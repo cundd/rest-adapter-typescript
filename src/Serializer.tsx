@@ -276,7 +276,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         const classTypeDefinition = ClassTypeDefinition.fromObject(source);
         if (!classTypeDefinition || classTypeDefinition.ignoreUnknownFields()) {
             if (logger) {
-                logger.log(`[Serializer] Property '${sourceKey}' in '${this.inspectType(source)}' could not be serialized'`);
+                logger.log(`[Serializer] Property '${sourceKey}' in '${this.inspectType(source)}' could not be serialized`);
             }
 
             return;
@@ -288,7 +288,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
 
         if (classTypeDefinition.addUnknownFields()) {
             if (logger) {
-                logger.debug(`[Serializer] Serialize unknown property '${sourceKey}' of '${this.inspectType(source)}' could not be serialized'`);
+                logger.debug(`[Serializer] Serialize unknown property '${sourceKey}' of '${this.inspectType(source)}'`);
             }
             (target as ParDict)[sourceKey] = sourceValue;
         }
