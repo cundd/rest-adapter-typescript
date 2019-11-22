@@ -1,6 +1,4 @@
-/* tslint:disable:no-any */
-/* tslint:disable:max-classes-per-file */
-
+import 'reflect-metadata';
 import { Serializer } from './Serializer';
 import { Accessors } from './Tests/Fixtures/Accessors';
 import { Address } from './Tests/Fixtures/Address';
@@ -142,24 +140,23 @@ describe('serialize', () => {
 
         const serializer = new Serializer();
         const result = serializer.serialize(person);
-        expect(result).toBe('{"name":"Daniel","age":31}');
+        expect(result).toBe('{"name":"Daniel","age":31,"isDeveloper":null}');
     });
 
     it('with primitive Classes', () => {
         const person = new Person();
 
-        // tslint:disable:no-construct
-        // noinspection JSPrimitiveTypeWrapperUsage,UnnecessaryLocalVariableJS
+        // noinspection JSPrimitiveTypeWrapperUsage
         const stringObject = new String('Daniel');
         person.name = stringObject as string;
 
-        // noinspection JSPrimitiveTypeWrapperUsage,UnnecessaryLocalVariableJS
+        // noinspection JSPrimitiveTypeWrapperUsage
         const numberObject = new Number(31);
         person.age = numberObject as number;
 
         const serializer = new Serializer();
         const result = serializer.serialize(person);
-        expect(result).toBe('{"name":"Daniel","age":31}');
+        expect(result).toBe('{"name":"Daniel","age":31,"isDeveloper":null}');
     });
 
     it('with class Accessors', () => {
@@ -184,7 +181,7 @@ describe('serialize', () => {
         const serializer = new Serializer<Address>();
         const address = buildAddress('Daniel', 31, 'Mainstreet 123');
         const result = serializer.serialize(address);
-        expect(result).toBe('{"person":{"name":"Daniel","age":31},"street":"Mainstreet 123"}');
+        expect(result).toBe('{"person":{"name":"Daniel","age":31,"isDeveloper":null},"street":"Mainstreet 123"}');
     });
 
     it('with class AddressBook (contacts array-collection)', () => {
@@ -199,7 +196,7 @@ describe('serialize', () => {
         const result = serializer.serialize(addressBook);
 
         expect(result).toBe(
-            '{"contacts":{"1":{"person":{"name":"Daniel","age":31},"street":"Mainstreet 123"},"2":{"person":{"name":"Peter","age":29},"street":"Otherstreet 321"}}}'
+            '{"contacts":{"1":{"person":{"name":"Daniel","age":31,"isDeveloper":null},"street":"Mainstreet 123"},"2":{"person":{"name":"Peter","age":29,"isDeveloper":null},"street":"Otherstreet 321"}}}'
         );
 
     });
@@ -216,7 +213,7 @@ describe('serialize', () => {
         const result = serializer.serialize(addressBook);
 
         expect(result).toBe(
-            '{"contacts":{"daniel":{"person":{"name":"Daniel","age":31},"street":"Mainstreet 123"},"peter":{"person":{"name":"Peter","age":29},"street":"Otherstreet 321"}}}'
+            '{"contacts":{"daniel":{"person":{"name":"Daniel","age":31,"isDeveloper":null},"street":"Mainstreet 123"},"peter":{"person":{"name":"Peter","age":29,"isDeveloper":null},"street":"Otherstreet 321"}}}'
         );
     });
 
@@ -256,7 +253,7 @@ describe('serialize', () => {
             person
         );
         const result = serializer.serialize(data);
-        expect(result).toBe('{"name":"Burrito","person":{"name":"Daniel"}}');
+        expect(result).toBe('{"name":"Burrito","person":{"name":"Daniel","age":null,"isDeveloper":null}}');
     });
 
     describe('with primitives array', () => {
@@ -326,7 +323,7 @@ describe('serialize', () => {
 
             {
                 const instance = new AnyWrapper();
-                expect(serializer.serialize(instance)).toBe('{}');
+                expect(serializer.serialize(instance)).toBe('{"value":null}');
             }
         });
         it('with rename', () => {
@@ -341,7 +338,7 @@ describe('serialize', () => {
 
             {
                 const instance = new AnyWrapperWithRename();
-                expect(serializer.serialize(instance)).toBe('{}');
+                expect(serializer.serialize(instance)).toBe('{"value":null}');
             }
         });
     });
@@ -427,7 +424,7 @@ describe('serialize', () => {
             address.internalSetStreet('Mainstreet 123');
             address.internalSetPerson(null);
             const result = serializer.serialize(address);
-            expect(result).toBe('{"street":"Mainstreet 123","person":null}');
+            expect(result).toBe('{"person":null,"street":"Mainstreet 123"}');
         });
 
         it('with undefined property', () => {
@@ -436,7 +433,7 @@ describe('serialize', () => {
             address.internalSetStreet('Mainstreet 123');
             address.internalSetPerson(undefined);
             const result = serializer.serialize(address);
-            expect(result).toBe('{"street":"Mainstreet 123","person":null}');
+            expect(result).toBe('{"person":null,"street":"Mainstreet 123"}');
         });
 
         it('with empty Multiple-value property', () => {
@@ -460,7 +457,8 @@ describe('serialize', () => {
 
             const serializer = new Serializer();
             const result = serializer.serialize([person1, person2]);
-            expect(result).toBe('[{"name":"Daniel","age":31},{"name":"Peter","age":29}]');
+            expect(result).toBe(
+                '[{"name":"Daniel","age":31,"isDeveloper":null},{"name":"Peter","age":29,"isDeveloper":null}]');
         });
 
         it('with class Accessors', () => {
@@ -495,7 +493,7 @@ describe('serialize', () => {
             const address2 = buildAddress('Peter', 29, 'Otherstreet 321');
             const result = serializer.serialize([address1, address2]);
             expect(result).toBe(
-                '[{"person":{"name":"Daniel","age":31},"street":"Mainstreet 123"},{"person":{"name":"Peter","age":29},"street":"Otherstreet 321"}]'
+                '[{"person":{"name":"Daniel","age":31,"isDeveloper":null},"street":"Mainstreet 123"},{"person":{"name":"Peter","age":29,"isDeveloper":null},"street":"Otherstreet 321"}]'
             );
         });
 
@@ -517,7 +515,7 @@ describe('serialize', () => {
             const result = serializer.serialize([addressBook1, addressBook2]);
 
             expect(result).toBe(
-                '[{"contacts":{"1":{"person":{"name":"Daniel","age":31},"street":"Mainstreet 123"},"2":{"person":{"name":"Peter","age":29},"street":"Otherstreet 321"}}},{"contacts":{"3":{"person":{"name":"Bert","age":54},"street":"Bertstreet 123"}}}]'
+                '[{"contacts":{"1":{"person":{"name":"Daniel","age":31,"isDeveloper":null},"street":"Mainstreet 123"},"2":{"person":{"name":"Peter","age":29,"isDeveloper":null},"street":"Otherstreet 321"}}},{"contacts":{"3":{"person":{"name":"Bert","age":54,"isDeveloper":null},"street":"Bertstreet 123"}}}]'
             );
 
         });
@@ -546,7 +544,7 @@ describe('serialize', () => {
             const result = serializer.serialize(map);
 
             expect(result).toBe(
-                '{"Daniel\'s address book":{"contacts":{"1":{"person":{"name":"Daniel","age":31},"street":"Mainstreet 123"},"2":{"person":{"name":"Peter","age":29},"street":"Otherstreet 321"}}},"Sonja\'s address book":{"contacts":{"3":{"person":{"name":"Bert","age":54},"street":"Bertstreet 123"}}}}'
+                '{"Daniel\'s address book":{"contacts":{"1":{"person":{"name":"Daniel","age":31,"isDeveloper":null},"street":"Mainstreet 123"},"2":{"person":{"name":"Peter","age":29,"isDeveloper":null},"street":"Otherstreet 321"}}},"Sonja\'s address book":{"contacts":{"3":{"person":{"name":"Bert","age":54,"isDeveloper":null},"street":"Bertstreet 123"}}}}'
             );
         });
 

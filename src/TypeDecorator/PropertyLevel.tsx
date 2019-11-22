@@ -1,4 +1,3 @@
-/* tslint:disable:unified-signatures */
 import 'reflect-metadata';
 import { ClassConstructorType } from '../ClassConstructorType';
 import { isPrimitiveTypeEnum, PrimitiveTypeEnum, typeForTypeName } from './PrimitiveTypeEnum';
@@ -126,7 +125,7 @@ export function ra_property<T>(
 export function ra_property(): RaPropertyReturn;
 
 export function ra_property<T>(...args: any[]) {
-    return <P extends object>(target: P, propertyKey: string) => {
+    return <P extends object>(target: P, propertyKey: string): void => {
         let type: ClassConstructorType<T> | PrimitiveTypeEnum | undefined;
         let rename: string | undefined;
         let options: number = PropertyTypeOptions.None;

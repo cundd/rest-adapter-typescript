@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ReactNode } from 'react';
 import * as ReactDOM from 'react-dom';
 import { AdapterConfiguration, ApiError, RestAdapter } from './index';
 import { Entry } from './Tests/App/Entry';
@@ -21,7 +22,6 @@ class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
 
-        /* tslint:disable */
         const search = (Util.parseUrl(props.endpoint) as any).search;
         const resource = search ? search.substr(1) : '';
         const requestSettings: RequestInit = {
@@ -34,7 +34,7 @@ class App extends React.Component<AppProps, AppState> {
         };
     }
 
-    render() {
+    public render(): ReactNode {
         const entries = this.state.entries;
 
         return (
@@ -45,7 +45,7 @@ class App extends React.Component<AppProps, AppState> {
         );
     }
 
-    componentDidMount() {
+    public componentDidMount(): void {
         const promise = this.restAdapter.findAll<Entry>(this.state.resource);
 
         promise
@@ -57,7 +57,7 @@ class App extends React.Component<AppProps, AppState> {
             });
     }
 
-    private renderList(entries: Entry[]) {
+    private renderList(entries: Entry[]): ReactNode {
         if (entries.length === 0) {
             return null;
         }
@@ -65,7 +65,7 @@ class App extends React.Component<AppProps, AppState> {
         return <ul>{entries.map(entry => <EntryView key={entry.uid} entry={entry}/>)}</ul>;
     }
 
-    private renderError() {
+    private renderError(): ReactNode {
         const error = this.state.error;
         if (error) {
             return <div className="error-container">{error.message}</div>;
@@ -75,7 +75,7 @@ class App extends React.Component<AppProps, AppState> {
     }
 }
 
-(function () {
+(function (): void {
     const location = window.location;
     const endpoint = location.hash ? location.hash.substr(1) : '';
 

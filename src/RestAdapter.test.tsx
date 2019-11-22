@@ -1,14 +1,11 @@
-/* tslint:disable:no-any */
-
 import { AdapterConfiguration } from './AdapterConfiguration';
 import { ApiError } from './Error/ApiError';
 import { ExecuteMethod } from './ExecuteMethod';
 import { RestAdapter } from './RestAdapter';
 
-/* tslint:disable-next-line:no-var-requires */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const fetchMock = require('jest-fetch-mock');
 
-/* tslint:disable-next-line:no-unused-expression no-any */
 function buildTestConfiguration(responseData: string | undefined, error?: any) {
     if (error) {
         fetchMock.mockReject(error);

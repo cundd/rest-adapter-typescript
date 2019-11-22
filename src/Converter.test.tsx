@@ -1,5 +1,3 @@
-/* tslint:disable:no-any */
-
 import { Converter } from './Converter';
 import { Accessors } from './Tests/Fixtures/Accessors';
 import { Address } from './Tests/Fixtures/Address';

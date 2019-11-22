@@ -13,8 +13,9 @@ export class Validator implements ValidatorInterface {
     public validateSingleResult<T>(
         result: T | null,
         resolve: ResolveCallback<T | null>,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         reject: RejectCallback
-    ) {
+    ): void {
         resolve(result);
     }
 
@@ -29,7 +30,7 @@ export class Validator implements ValidatorInterface {
         result: T[],
         resolve: ResolveCallback<T[]>,
         reject: RejectCallback
-    ) {
+    ): void {
         if (Array.isArray(result) || typeof result === 'object') {
             resolve(result);
         } else {

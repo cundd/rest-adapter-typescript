@@ -1,3 +1,3 @@
 export interface Entry {
-    uid: string | number
+    uid: string | number;
 }

@@ -14,7 +14,7 @@ export const checkPerson = (
     name: string,
     age: number | undefined | null,
     isDeveloper?: boolean
-) => {
+): void => {
     checkClass(result, ctor);
     if (result) {
         expect(result.name).toEqual(name);
@@ -29,7 +29,7 @@ export const checkAddress = (
     name: string,
     age: number,
     street: string
-) => {
+): void => {
     checkClass(result, Address);
     if (result) {
         expect(result.street).toEqual(street);

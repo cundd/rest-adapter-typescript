@@ -1,5 +1,3 @@
-// tslint:disable:unified-signatures
-
 import { ExecuteMethod } from './ExecuteMethod';
 
 export interface AdapterExecuteInterface {

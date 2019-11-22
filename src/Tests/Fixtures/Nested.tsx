@@ -1,5 +1,3 @@
-// tslint:disable:max-classes-per-file
-
 import { ra_property } from '../../TypeDecorator/PropertyLevel';
 
 export class A {

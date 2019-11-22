@@ -10,7 +10,6 @@ import { Validator } from './Validator';
 import { ValidatorInterface } from './ValidatorInterface';
 
 export type ResolveCallback<T> = (value?: T | PromiseLike<T>) => void;
-/* tslint:disable-next-line:no-any */
 export type RejectCallback = (reason?: any) => void;
 
 type SuccessCallback<T> = (result: T, resolve: ResolveCallback<T>, reject: RejectCallback) => void;
@@ -152,7 +151,6 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         };
     }
 
-    /* tslint:disable-next-line:no-any */
     private assertValidResourceType(resourceType: string | any) {
         if (typeof resourceType !== 'string') {
             throw new TypeError(`Resource Type must be of type string "${typeof resourceType}" given`);

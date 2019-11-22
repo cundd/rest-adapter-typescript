@@ -11,7 +11,7 @@ export class ClassTypeDefinition<T> {
         return Reflect.getMetadata(metadataKey, instanceOrClass);
     }
 
-    constructor(readonly options: number) {
+    constructor(public readonly options: number) {
         if (options & ClassTypeOptions.AddUnknownFields && options & ClassTypeOptions.DenyUnknownFields) {
             throw new TypeError('AddUnknownFields and DenyUnknownFields must not be used together');
         }
@@ -37,7 +37,7 @@ export enum ClassTypeOptions {
 }
 
 export function ra<T>(options: ClassTypeOptions = ClassTypeOptions.None) {
-    return (target: ClassConstructorType<T>) => {
+    return (target: ClassConstructorType<T>): void => {
         Reflect.defineMetadata(metadataKey, new ClassTypeDefinition(options), target.prototype);
     };
 }

@@ -1,5 +1,3 @@
-/* tslint:disable:no-any */
-
 export type ErrorInput = Error | string | any;
 export type ErrorConstructorFn<E> = new (...args: any[]) => E;
 
@@ -46,6 +44,10 @@ export function buildError<E extends ApiError>(
 }
 
 export class ApiError {
-    constructor(readonly message: string, readonly meta?: any, readonly name: string = 'ApiError') {
+    constructor(
+        public readonly message: string,
+        public readonly meta?: any,
+        public readonly name: string = 'ApiError'
+    ) {
     }
 }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ReactNode } from 'react';
 import { Entry } from './Entry';
 
 interface EntryProps<T> {
@@ -6,7 +7,7 @@ interface EntryProps<T> {
 }
 
 interface EntryState {
-    expanded: boolean
+    expanded: boolean;
 }
 
 export class EntryView<T extends Entry> extends React.Component<EntryProps<T>, EntryState> {
@@ -16,13 +17,13 @@ export class EntryView<T extends Entry> extends React.Component<EntryProps<T>, E
         this.handleClick = this.handleClick.bind(this);
     }
 
-    public handleClick() {
+    public handleClick(): void {
         this.setState(state => ({
             expanded: !state.expanded
         }));
     }
 
-    public render() {
+    public render(): ReactNode {
         const headerProperties = [
             'title',
             'name',

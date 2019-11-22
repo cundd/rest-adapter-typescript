@@ -1,18 +1,14 @@
-/* tslint:disable:no-any */
-
 import { AdapterInterface } from './AdapterInterface';
 import { ClassConstructorType } from './ClassConstructorType';
 import { Converter as ConverterClass } from './Converter';
 import { ConverterInterface } from './ConverterInterface';
 import { Repository } from './Repository';
 import { RestAdapter as RestAdapterClass } from './RestAdapter';
-import DoneCallback = jest.DoneCallback;
-import MockInstance = jest.MockInstance;
 
 jest.mock('./Converter');
 jest.mock('./RestAdapter');
-const RestAdapter: MockInstance<RestAdapterClass, any> = (RestAdapterClass as any);
-const Converter: MockInstance<ConverterInterface<any>, any> = (ConverterClass as any);
+const RestAdapter: jest.MockInstance<RestAdapterClass, any> = (RestAdapterClass as any);
+const Converter: jest.MockInstance<ConverterInterface<any>, any> = (ConverterClass as any);
 
 class Simple {
     public name: string = 'Daniel';
@@ -36,13 +32,15 @@ describe('Converter', () => {
         }),
     }));
 
-    it('Converter should be invoked for findAll()', (done: DoneCallback) => {
+    it('Converter should be invoked for findAll()', (done: jest.DoneCallback) => {
+        const convertCollection = jest.fn((targetType: ClassConstructorType<Simple>, input: Simple[]) => {
+            expect(input[0]).toEqual(simple);
+            done();
+        }) as any;
+
         const ConverterMock = jest.fn<ConverterInterface<any>, any>(() => ({
-            // @ts-ignore
-            convertCollection: jest.fn((targetType: ClassConstructorType<Simple>, input: Simple[]) => {
-                expect(input[0]).toEqual(simple);
-                done();
-            })
+            convertCollection: convertCollection,
+            convertSingle: (() => {}) as any
         }));
 
         const repository = new Repository(
@@ -55,13 +53,15 @@ describe('Converter', () => {
         repository.findAll().then();
     });
 
-    it('Converter should be invoked for findByIdentifier()', (done: DoneCallback) => {
+    it('Converter should be invoked for findByIdentifier()', (done: jest.DoneCallback) => {
+        const convertSingle = jest.fn((targetType: ClassConstructorType<Simple>, input: Simple) => {
+            expect(input).toEqual(simple);
+            done();
+        }) as any;
+
         const ConverterMock = jest.fn<ConverterInterface<any>, any>(() => ({
-            // @ts-ignore
-            convertSingle: jest.fn((targetType: ClassConstructorType<Simple>, input: Simple) => {
-                expect(input).toEqual(simple);
-                done();
-            })
+            convertCollection: {} as any,
+            convertSingle
         }));
 
         const repository = new Repository(

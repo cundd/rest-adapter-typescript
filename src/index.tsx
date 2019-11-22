@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 export * from './Credentials';
 export * from './Endpoint';
 export * from './AdapterConfiguration';

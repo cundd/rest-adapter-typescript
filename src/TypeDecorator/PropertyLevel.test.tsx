@@ -23,17 +23,14 @@ class MixedOptions {
 // ================================================================================================
 // Different tests
 
-// tslint:disable-next-line:no-any
 type PropertyTypeDefinitionProvider<T> = (i: object | ClassConstructorType<any>) => PropertyTypeDefinition<T> | undefined;
 
-// tslint:disable:no-any
 type PropertyTypeDefinitionProviderMixedOptions = (
     instanceOrClass: object | ClassConstructorType<any>,
     key: string
 ) => PropertyTypeDefinition<MixedOptions> | undefined;
-// tslint:enable:no-any
 
-const addressTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProvider<Person>) => {
+const addressTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProvider<Person>): void => {
     const metadata = provider(instanceOrClass) as PropertyTypeDefinition<Person>;
     expect(metadata).toBeDefined();
     expect(metadata).toBeInstanceOf(PropertyTypeDefinition);
@@ -41,7 +38,7 @@ const addressTest = (instanceOrClass: object, provider: PropertyTypeDefinitionPr
     expect(metadata.options).toEqual(PropertyTypeOptions.None);
     expect(metadata.hasMultiple()).toBeFalsy();
 };
-const addressBookTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProvider<Address>) => {
+const addressBookTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProvider<Address>): void => {
     const metadata = provider(instanceOrClass) as PropertyTypeDefinition<Address>;
     expect(metadata).toBeDefined();
     expect(metadata).toBeInstanceOf(PropertyTypeDefinition);
@@ -49,7 +46,7 @@ const addressBookTest = (instanceOrClass: object, provider: PropertyTypeDefiniti
     expect(metadata.options).toEqual(PropertyTypeOptions.Multiple);
     expect(metadata.hasMultiple()).toBeTruthy();
 };
-const orderTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProvider<Order>) => {
+const orderTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProvider<Order>): void => {
     const metadata = provider(instanceOrClass) as PropertyTypeDefinition<Order>;
     expect(metadata).toBeDefined();
     expect(metadata).toBeInstanceOf(PropertyTypeDefinition);
@@ -58,7 +55,7 @@ const orderTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProv
     expect(metadata.hasMultiple()).toBeFalsy();
 };
 
-const mixedOptionsTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProviderMixedOptions) => {
+const mixedOptionsTest = (instanceOrClass: object, provider: PropertyTypeDefinitionProviderMixedOptions): void => {
     {
         const metadata = provider(instanceOrClass, 'none') as PropertyTypeDefinition<MixedOptions>;
         expect(metadata).toBeDefined();

@@ -7,11 +7,12 @@ import { metadataKey } from './MetaDataKey';
 
 // ================================================================================================
 // Different tests
-
-// tslint:disable-next-line:no-any
 type ClassTypeDefinitionProvider<T> = (i: object | ClassConstructorType<any>) => ClassTypeDefinition<T> | undefined;
 
-const denyUnknownFieldsTest = (instanceOrClass: object, provider: ClassTypeDefinitionProvider<DenyUnknownFields>) => {
+const denyUnknownFieldsTest = (
+    instanceOrClass: object,
+    provider: ClassTypeDefinitionProvider<DenyUnknownFields>
+): void => {
     const metadata = provider(instanceOrClass) as ClassTypeDefinition<DenyUnknownFields>;
     expect(metadata).toBeDefined();
     expect(metadata).toBeInstanceOf(ClassTypeDefinition);
@@ -20,8 +21,11 @@ const denyUnknownFieldsTest = (instanceOrClass: object, provider: ClassTypeDefin
     expect(metadata.denyUnknownFields()).toBeTruthy();
     expect(metadata.addUnknownFields()).toBeFalsy();
 };
-const addUnknownFieldsTest = (instanceOrClass: object, provider: ClassTypeDefinitionProvider<AddUnknownFields>) => {
-    const metadata = provider(instanceOrClass)as ClassTypeDefinition<AddUnknownFields>;
+const addUnknownFieldsTest = (
+    instanceOrClass: object,
+    provider: ClassTypeDefinitionProvider<AddUnknownFields>
+): void => {
+    const metadata = provider(instanceOrClass) as ClassTypeDefinition<AddUnknownFields>;
     expect(metadata).toBeDefined();
     expect(metadata).toBeInstanceOf(ClassTypeDefinition);
     expect(metadata.options).toEqual(ClassTypeOptions.AddUnknownFields);
@@ -29,7 +33,7 @@ const addUnknownFieldsTest = (instanceOrClass: object, provider: ClassTypeDefini
     expect(metadata.denyUnknownFields()).toBeFalsy();
     expect(metadata.addUnknownFields()).toBeTruthy();
 };
-const addressTest = (instanceOrClass: object, provider: ClassTypeDefinitionProvider<Address>) => {
+const addressTest = (instanceOrClass: object, provider: ClassTypeDefinitionProvider<Address>): void => {
     const metadata = provider(instanceOrClass) as ClassTypeDefinition<Address>;
     expect(metadata).toBeDefined();
     expect(metadata).toBeInstanceOf(ClassTypeDefinition);
@@ -153,7 +157,9 @@ describe('Validation', () => {
     it('Must not use DenyUnknownFields and AddUnknownFields together', () => {
         expect(() => {
             @ra(ClassTypeOptions.AddUnknownFields | ClassTypeOptions.DenyUnknownFields)
+                // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
                 // @ts-ignore
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             class AddAndDenyUnknownFields {
             }
         }).toThrowError('AddUnknownFields and DenyUnknownFields must not be used together');

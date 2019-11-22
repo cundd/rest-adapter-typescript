@@ -118,7 +118,6 @@ describe('Object instantiation', () => {
         ];
         hosts.forEach((host) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new AdapterConfiguration(new Endpoint(host as any));
             }).toThrowError('Given value is not a valid IPv4, IPv6 or hostname');
         });
@@ -131,7 +130,6 @@ describe('Object instantiation', () => {
         ];
         protocols.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new AdapterConfiguration(new Endpoint('localhost', protocol as any));
             }).toThrowError('Protocol must not be empty');
         });
@@ -145,7 +143,6 @@ describe('Object instantiation', () => {
         ];
         protocols.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new AdapterConfiguration(new Endpoint('localhost', protocol));
             }).toThrowError('Given value is not a valid protocol. Final colon missing');
         });
@@ -158,7 +155,6 @@ describe('Object instantiation', () => {
         ];
         protocols.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new AdapterConfiguration(new Endpoint('localhost', protocol));
             }).toThrowError('Given value is not a valid protocol');
         });
@@ -175,7 +171,6 @@ describe('Object instantiation', () => {
         ];
         ports.forEach((port) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new AdapterConfiguration(new Endpoint('localhost', undefined, port as any));
             }).toThrowError('Given value is not a valid port number');
         });
@@ -196,7 +191,6 @@ describe('Customizing the XHR function', () => {
         ];
         callbacks.forEach(callback => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new AdapterConfiguration(new Endpoint('localhost'), {}, (callback as any) as FetchCallback);
             }).toThrowError(error);
         });
@@ -216,7 +210,6 @@ describe('Customizing the XHR function', () => {
         const c = new AdapterConfiguration(new Endpoint('localhost'));
         callbacks.forEach(callback => {
             expect(() => {
-                /* tslint:disable-next-line:no-any */
                 c.fetchCallback = callback as any;
             }).toThrowError(error);
         });
@@ -235,7 +228,6 @@ describe('Customizing the XHR function', () => {
 
     it('new should accept function for fetchCallback', () => {
         const callback = () => {
-            /* tslint:disable-next-line */
             return new Promise<Response>(() => {
             });
         };
@@ -245,7 +237,6 @@ describe('Customizing the XHR function', () => {
 
     it('set fetchCallback should accept function', () => {
         const callback = () => {
-            /* tslint:disable-next-line */
             return new Promise<Response>(() => {
             });
         };

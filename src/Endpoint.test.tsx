@@ -148,7 +148,6 @@ describe('Object instantiation', () => {
     it('new should throw for invalid hostname', () => {
         getInvalidHosts().forEach((host) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new Endpoint(host as any);
             }).toThrowError('Given value is not a valid IPv4, IPv6 or hostname');
         });
@@ -157,7 +156,6 @@ describe('Object instantiation', () => {
     it('new should throw for invalid protocol (empty protocol)', () => {
         getProtocols().empty.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new Endpoint('localhost', protocol as any);
             }).toThrowError('Protocol must not be empty');
         });
@@ -166,7 +164,6 @@ describe('Object instantiation', () => {
     it('new should throw for invalid protocol (missing colon)', () => {
         getProtocols().missingColon.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new Endpoint('localhost', protocol);
             }).toThrowError('Given value is not a valid protocol. Final colon missing');
         });
@@ -175,7 +172,6 @@ describe('Object instantiation', () => {
     it('new should throw for invalid protocol (unsupported)', () => {
         getProtocols().unsupported.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new Endpoint('localhost', protocol);
             }).toThrowError('Given value is not a valid protocol');
         });
@@ -184,7 +180,6 @@ describe('Object instantiation', () => {
     it('new should throw for invalid port', () => {
         getInvalidPorts().forEach((port) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new Endpoint('localhost', undefined, port as any);
             }).toThrowError('Given value is not a valid port number');
         });
@@ -198,7 +193,6 @@ describe('Modification', () => {
     it('set hostname should throw for invalid hostname', () => {
         getInvalidHosts().forEach((host) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 buildEndpoint().hostname = host as any;
             }).toThrowError('Given value is not a valid IPv4, IPv6 or hostname');
         });
@@ -207,7 +201,6 @@ describe('Modification', () => {
     it('set protocol should throw for invalid protocol (empty protocol)', () => {
         getProtocols().empty.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 buildEndpoint().protocol = protocol as any;
             }).toThrowError('Protocol must not be empty');
         });
@@ -216,7 +209,6 @@ describe('Modification', () => {
     it('set protocol should throw for invalid protocol (missing colon)', () => {
         getProtocols().missingColon.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 buildEndpoint().protocol = protocol as any;
             }).toThrowError('Given value is not a valid protocol. Final colon missing');
         });
@@ -225,7 +217,6 @@ describe('Modification', () => {
     it('set protocol should throw for invalid protocol (unsupported)', () => {
         getProtocols().unsupported.forEach((protocol) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 buildEndpoint().protocol = protocol as any;
             }).toThrowError('Given value is not a valid protocol');
         });
@@ -234,7 +225,6 @@ describe('Modification', () => {
     it('set port should throw for invalid port', () => {
         getInvalidPorts().forEach((port) => {
             expect(() => {
-                /* tslint:disable-next-line:no-unused-expression no-any */
                 new Endpoint('localhost', undefined, port as any);
             }).toThrowError('Given value is not a valid port number');
         });

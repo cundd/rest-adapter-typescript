@@ -3,8 +3,11 @@ import { metadataKey } from './MetaDataKey';
 import { isPrimitiveTypeEnum, PrimitiveTypeEnum } from './PrimitiveTypeEnum';
 import { PropertyTypeOptions } from './PropertyLevel';
 
+// eslint-disable-next-line
+type TypeOptions<T> = ClassConstructorType<T> | PrimitiveTypeEnum | undefined ;
+
 interface PropertyTypeDefinitionInterface<T> {
-    readonly type: ClassConstructorType<T> | PrimitiveTypeEnum | undefined;
+    readonly type: TypeOptions<T>;
     readonly options: number;
     readonly propertyKey: string;
     readonly rename: string | undefined;
@@ -23,10 +26,10 @@ export class PropertyTypeDefinition<T> implements PropertyTypeDefinitionInterfac
     }
 
     constructor(
-        readonly type: ClassConstructorType<T> | PrimitiveTypeEnum | undefined,
-        readonly options: number,
-        readonly propertyKey: string,
-        readonly rename: string | undefined
+        public readonly type: TypeOptions<T>,
+        public readonly options: number,
+        public readonly propertyKey: string,
+        public readonly rename: string | undefined
     ) {
     }
 

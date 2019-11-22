@@ -1,5 +1,3 @@
-/* tslint:disable:no-any */
-
 import { Deserializer } from './Deserializer';
 import { Accessors } from './Tests/Fixtures/Accessors';
 import { Address } from './Tests/Fixtures/Address';
@@ -121,12 +119,10 @@ describe('deserialize single', () => {
             converter.deserialize(Accessors, '');
         }).toThrowError('Input must not be empty');
         expect(() => {
-            // @ts-ignore
-            converter.deserialize(Person, null);
+            converter.deserialize(Person, null as any);
         }).toThrowError('Input must not be empty');
         expect(() => {
-            // @ts-ignore
-            converter.deserialize(Accessors, null);
+            converter.deserialize(Accessors, null as any);
         }).toThrowError('Input must not be empty');
     });
 });

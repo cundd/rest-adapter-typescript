@@ -1,5 +1,3 @@
-/* tslint:disable:no-any */
-
 import { Converter } from './Converter';
 import { Deserializer } from './Deserializer';
 import { Serializer } from './Serializer';
