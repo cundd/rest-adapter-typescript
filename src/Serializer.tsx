@@ -13,7 +13,7 @@ export interface FormatOptions {
     /**
      * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_space_argument
      */
-    space: string | number | undefined
+    space: string | number | undefined;
 }
 
 type CollectionType<T> = T[] | Map<string, T> | Map<number, T>;
@@ -193,13 +193,13 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
             targetKey = property;
         }
 
-        if (logger) {
-            const prepared = this.prepareProperty(
-                instance[property],
-                property,
-                typeDefinition
-            );
+        const prepared = this.prepareProperty(
+            instance[property],
+            property,
+            typeDefinition
+        );
 
+        if (logger) {
             logger.debug(
                 `[Serializer] Serialize property '${property}' `
                 + `of type '${this.inspectType(instance[property])}' `
@@ -207,11 +207,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
             );
         }
 
-        (target as ParDict)[targetKey] = this.prepareProperty(
-            instance[property],
-            property,
-            typeDefinition
-        );
+        (target as ParDict)[targetKey] = prepared;
     }
 
     private prepareProperty<T>(
@@ -223,15 +219,6 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
 
         // Handle `null` or `undefined`
         if (value === null || value === undefined) {
-            return null;
-        }
-
-        // Handle generic objects or untyped values
-        if (typeof type === 'function' && type === Object.prototype.constructor) {
-            return value;
-        }
-
-        if (undefined === type) {
             return value;
         }
 
@@ -239,7 +226,32 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
             if (typeDefinition.hasMultiple()) {
                 return this.prepareFromCollection(value as CollectionType<T>, typeDefinition);
             }
+        } catch (error) {
+            if (error instanceof SerializationError) {
+                throw new SerializationError(
+                    `Error while serializing value for key '${key}': ${error.message}`,
+                    error.meta
+                );
+            } else {
+                throw error;
+            }
+        }
 
+        // Handle generic objects or untyped values
+        if (typeof type === 'function' && type === Object.prototype.constructor) {
+            return value;
+        }
+
+        // Handle enum types
+        if (typeof type === 'object' && (type as Function).constructor) {
+            return value;
+        }
+
+        if (typeof type === 'undefined') {
+            return value;
+        }
+
+        try {
             // If `type` is a primitive type check if the source value already has the correct type
             if (isPrimitiveTypeEnum(type)) {
                 return this.preparePrimitiveProperty(value, type);
@@ -333,7 +345,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         } else if (type === PrimitiveTypeEnum.Number) {
             return parseFloat('' + value);
         } else if (type === PrimitiveTypeEnum.String) {
-            return '' + value;
+            return value !== undefined && value !== null ? '' + value : '';
         } else if (type === PrimitiveTypeEnum.Null) {
             return null;
         } else if (type === PrimitiveTypeEnum.Undefined) {
