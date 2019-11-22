@@ -1,7 +1,7 @@
 export class WithPostConstruct {
     public value: string;
 
-    public postConstruct() {
+    public postConstruct(): void {
         this.value = 'initialized';
     }
 }

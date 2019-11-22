@@ -1,10 +1,11 @@
-import {Endpoint} from './Endpoint';
+import { Endpoint } from './Endpoint';
 
-const getProtocols = () => {
+const getProtocols = (): any => {
     return {
         empty: [
             null,
-            ''],
+            ''
+        ],
         missingColon: [
             'http',
             'https',
@@ -17,7 +18,7 @@ const getProtocols = () => {
     };
 };
 
-const getInvalidHosts = () => {
+const getInvalidHosts = (): any => {
     return [
         undefined,
         '',
@@ -30,7 +31,7 @@ const getInvalidHosts = () => {
     ];
 };
 
-const getInvalidPorts = () => {
+const getInvalidPorts = (): any => {
     return [
         '',
         0.1,
@@ -41,7 +42,7 @@ const getInvalidPorts = () => {
     ];
 };
 
-const getValidParameters = (includeIpv6: boolean) => {
+const getValidParameters = (includeIpv6: boolean): any => {
     const hosts = [
         '127.0.0.1',
         'localhost',
@@ -75,7 +76,7 @@ const getValidParameters = (includeIpv6: boolean) => {
     };
 };
 
-const trimSlashes = (input: string) => input.replace(new RegExp('^/+|/+$', 'g'), '');
+const trimSlashes = (input: string): string => input.replace(new RegExp('^/+|/+$', 'g'), '');
 
 describe('Object instantiation', () => {
     it('new', () => {
@@ -100,7 +101,7 @@ describe('Object instantiation', () => {
         });
     });
 
-    const fromUrlTest = (buildUrlObject: boolean) => {
+    const fromUrlTest = (buildUrlObject: boolean): void => {
         const parameters = getValidParameters(false);
         const hosts = parameters.hosts;
         const protocols = parameters.protocols;
@@ -187,7 +188,7 @@ describe('Object instantiation', () => {
 });
 
 describe('Modification', () => {
-    const buildEndpoint = () => {
+    const buildEndpoint = (): Endpoint => {
         return new Endpoint('localhost');
     };
     it('set hostname should throw for invalid hostname', () => {

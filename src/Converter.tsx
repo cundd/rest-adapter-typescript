@@ -1,12 +1,15 @@
 import 'reflect-metadata';
 import { ClassConstructorType } from './ClassConstructorType';
+import { CollectionType } from './CollectionType';
 import { ConverterInterface } from './ConverterInterface';
 import { Dictionary, ParDict } from './Dictionary';
 import { ConverterTypeError } from './Error/ConverterTypeError';
 import { LoggerInterface } from './LoggerInterface';
+import { PrimitiveType } from './PrimitiveType';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { isNotPrimitive, PrimitiveTypeEnum } from './TypeDecorator/PrimitiveTypeEnum';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
+import { Util } from './Util';
 
 type MapFunctionResult<R> = R | undefined | null | any;
 
@@ -128,7 +131,7 @@ export class Converter<B> implements ConverterInterface<B> {
         return targetObject;
     }
 
-    private assignProperty<T extends ParDict>(target: T, sourceKey: string, source: object) {
+    private assignProperty<T extends ParDict>(target: T, sourceKey: string, source: object): void {
         const typeDefinition = PropertyTypeDefinition.fromObject<T>(target, sourceKey);
 
         // Look if there is a Property Type Definition for the source key
@@ -151,7 +154,7 @@ export class Converter<B> implements ConverterInterface<B> {
         source: S,
         sourceKey: string,
         typeDefinition: PropertyTypeDefinition<T>
-    ) {
+    ): PrimitiveType | CollectionType<T> | T {
         const sourceValue = source[sourceKey];
 
         // Handle `null` or `undefined`
@@ -190,7 +193,7 @@ export class Converter<B> implements ConverterInterface<B> {
         target: T,
         sourceKey: string,
         source: S
-    ) {
+    ): void {
         const sourceValue = source[sourceKey];
         const classTypeDefinition = ClassTypeDefinition.fromObject(target);
 
@@ -208,33 +211,20 @@ export class Converter<B> implements ConverterInterface<B> {
         }
 
         if (classTypeDefinition.denyUnknownFields()) {
-            throw new ConverterTypeError(`Property '${sourceKey}' could not be found in '${this.inspectType(target)}'`);
+            throw new ConverterTypeError(`Property '${sourceKey}' could not be found in '${Util.inspectType(target)}'`);
         }
 
         if (classTypeDefinition.addUnknownFields()) {
             const newTargetKey = this.detectNewPropertyTargetKey(target, sourceKey);
             if (newTargetKey === null) {
-                throw new ConverterTypeError(`Property '${sourceKey}' could not be set in '${this.inspectType(target)}'`);
+                throw new ConverterTypeError(`Property '${sourceKey}' could not be set in '${Util.inspectType(target)}'`);
             }
 
             (target as ParDict)[newTargetKey] = sourceValue;
         }
     }
 
-    private inspectType<S extends ParDict>(input: S) {
-        const type = typeof input;
-
-        if (input === null) {
-            return '(object) null';
-        }
-        if (type === 'object') {
-            return '(object) ' + input.constructor.name;
-        }
-
-        return '(' + type + ')';
-    }
-
-    private detectNewPropertyTargetKey<T extends object>(newInstance: T | object, sourceKey: string) {
+    private detectNewPropertyTargetKey<T extends object>(newInstance: T | object, sourceKey: string): string | null {
         if (this.hasPropertyWriteAccess(newInstance, sourceKey)) {
             return sourceKey;
         } else if (this.hasPropertyWriteAccess(newInstance, '_' + sourceKey)) {
@@ -244,7 +234,7 @@ export class Converter<B> implements ConverterInterface<B> {
         }
     }
 
-    private hasPropertyWriteAccess<T extends object>(instance: T | object, key: string) {
+    private hasPropertyWriteAccess<T extends object>(instance: T | object, key: string): boolean {
         const descriptor = Object.getOwnPropertyDescriptor(instance, key)
             || Object.getOwnPropertyDescriptor((instance as object).constructor.prototype, key);
         if (!descriptor) {

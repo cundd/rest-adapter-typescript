@@ -1,13 +1,16 @@
 import 'reflect-metadata';
+import { CollectionType } from './CollectionType';
 import { ParDict } from './Dictionary';
 import { SerializationError } from './Error/SerializationError';
 import { LoggerInterface } from './LoggerInterface';
+import { PrimitiveType } from './PrimitiveType';
 import { SerializerInput, SerializerInterface } from './SerializerInterface';
 import { ClassTypeDefinition } from './TypeDecorator/ClassLevel';
 import { isPrimitiveTypeEnum, PrimitiveTypeEnum, typeNameForEnum } from './TypeDecorator/PrimitiveTypeEnum';
 import { PropertyTypeDefinition } from './TypeDecorator/PropertyTypeDefinition';
+import { Util } from './Util';
 
-const replacer = (key: string, value: any) => value === undefined ? null : value;
+const replacer = (key: string, value: any): any => value === undefined ? null : value;
 
 export interface FormatOptions {
     /**
@@ -15,8 +18,6 @@ export interface FormatOptions {
      */
     space: string | number | undefined;
 }
-
-type CollectionType<T> = T[] | Map<string, T> | Map<number, T>;
 
 export class Serializer<B extends object> implements SerializerInterface<B> {
     constructor(private logger?: LoggerInterface, private formatOptions: FormatOptions = {space: undefined}) {
@@ -69,14 +70,12 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * @param {T} input
      * @param typeDefinition
-     * @return {object|null}
+     * @return {any}
      */
     private convertValue<T>(
         input: T,
         typeDefinition: PropertyTypeDefinition<T> | undefined
     ): any {
-        const target = {};
-
         // If the Type Definition is given and it is a primitive type treat the value as it
         if (typeDefinition && isPrimitiveTypeEnum(typeDefinition.type)) {
             return this.preparePrimitiveProperty(input, typeDefinition.type);
@@ -90,6 +89,8 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         if (input === null) {
             return null;
         }
+
+        const target = {};
         for (const key of Object.keys(input)) {
             this.serializeProperty(target, key, input);
         }
@@ -104,12 +105,12 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * @param {T[]} input
      * @param {PropertyTypeDefinition<T> | undefined} collectionTypeDefinition
-     * @return {object[]}
+     * @return {any[]}
      */
     private convertArrayCollection<T>(
         input: T[],
         collectionTypeDefinition: PropertyTypeDefinition<T> | undefined
-    ): object[] {
+    ): any[] {
         return Array.prototype.map.call(input, (item: T) => this.convertValue(item, collectionTypeDefinition));
     }
 
@@ -120,12 +121,12 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * @param {Map<number | string, T>} input
      * @param {PropertyTypeDefinition<T> | undefined} collectionTypeDefinition
-     * @return {object}
+     * @return {ParDict}
      */
     private convertMap<T>(
         input: Map<number | string, T>,
         collectionTypeDefinition: PropertyTypeDefinition<T> | undefined
-    ): object {
+    ): ParDict {
         const targetObject: ParDict = {};
 
         input.forEach(
@@ -144,12 +145,12 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * @param {T} input
      * @param {PropertyTypeDefinition<T> | undefined} typeDefinition
-     * @return {object}
+     * @return {ParDict}
      */
     private convertObjectCollection<T extends ParDict>(
         input: T,
         typeDefinition: PropertyTypeDefinition<T> | undefined
-    ): object {
+    ): ParDict {
         const targetObject: ParDict = {};
 
         this.assertObject(input);
@@ -166,7 +167,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         target: T,
         property: string,
         instance: C
-    ) {
+    ): void {
         const typeDefinition = PropertyTypeDefinition.fromObject<C>(instance, property);
         if (!typeDefinition) {
             this.handleSourcePropertyWithoutDefinition(target, property, instance);
@@ -202,8 +203,8 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         if (logger) {
             logger.debug(
                 `[Serializer] Serialize property '${property}' `
-                + `of type '${this.inspectType(instance[property])}' `
-                + `to type '${this.inspectType(prepared)}'`
+                + `of type '${Util.inspectType(instance[property])}' `
+                + `to type '${Util.inspectType(prepared)}'`
             );
         }
 
@@ -214,7 +215,7 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
         value: T | CollectionType<T>,
         key: string,
         typeDefinition: PropertyTypeDefinition<T>
-    ) {
+    ): any {
         const type = typeDefinition.type;
 
         // Handle `null` or `undefined`
@@ -275,60 +276,47 @@ export class Serializer<B extends object> implements SerializerInterface<B> {
      *
      * @param {T} target
      * @param {string} sourceKey
-     * @param source
+     * @param {S} source
      */
     private handleSourcePropertyWithoutDefinition<T extends ParDict, S extends ParDict>(
         target: T,
         sourceKey: string,
         source: S
-    ) {
+    ): void {
         const logger = this.logger;
 
         const sourceValue = source[sourceKey];
         const classTypeDefinition = ClassTypeDefinition.fromObject(source);
         if (!classTypeDefinition || classTypeDefinition.ignoreUnknownFields()) {
             if (logger) {
-                logger.log(`[Serializer] Property '${sourceKey}' in '${this.inspectType(source)}' could not be serialized`);
+                logger.log(`[Serializer] Property '${sourceKey}' in '${Util.inspectType(source)}' could not be serialized`);
             }
 
             return;
         }
 
         if (classTypeDefinition.denyUnknownFields()) {
-            throw new SerializationError(`Property '${sourceKey}' in '${this.inspectType(source)}' could not be found`);
+            throw new SerializationError(`Property '${sourceKey}' in '${Util.inspectType(source)}' could not be found`);
         }
 
         if (classTypeDefinition.addUnknownFields()) {
             if (logger) {
-                logger.debug(`[Serializer] Serialize unknown property '${sourceKey}' of '${this.inspectType(source)}'`);
+                logger.debug(`[Serializer] Serialize unknown property '${sourceKey}' of '${Util.inspectType(source)}'`);
             }
             (target as ParDict)[sourceKey] = sourceValue;
         }
     }
 
-    private inspectType<S extends ParDict>(input: S) {
-        const type = typeof input;
-
-        if (input === null) {
-            return '(object) null';
-        }
-        if (type === 'object') {
-            return '(object) ' + input.constructor.name;
-        }
-
-        return '(' + type + ')';
-    }
-
-    private assertObject(input: any) {
+    private assertObject(input: any): void {
         if (typeof input !== 'object') {
             throw new SerializationError(`Argument 'input' must be an object, '${typeof input}' given`);
         }
     }
 
-    private preparePrimitiveProperty<T>(
-        value: T[] | Map<string, T> | Map<number, T> | T,
+    private preparePrimitiveProperty(
+        value: PrimitiveType | any,
         type: PrimitiveTypeEnum
-    ) {
+    ): PrimitiveType {
         // E.g. `"string" === "String".toLowerCase()`
         const typeName = typeNameForEnum(type);
         if (typeof value === typeName.toLowerCase()) {

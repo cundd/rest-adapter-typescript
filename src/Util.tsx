@@ -1,3 +1,5 @@
+import { ParDict } from './Dictionary';
+
 export interface EndpointURLInterface {
     hostname: string;
     pathname: string;
@@ -18,4 +20,24 @@ export class Util {
 
         return aTag;
     }
+
+    /**
+     * Return a string representation describing the given input
+     *
+     * @param {S} input
+     * @return {string}
+     */
+    public static inspectType<S extends ParDict>(input: S): string {
+        const type = typeof input;
+
+        if (input === null) {
+            return '(object) null';
+        }
+        if (type === 'object') {
+            return '(object) ' + input.constructor.name;
+        }
+
+        return '(' + type + ')';
+    }
+
 }

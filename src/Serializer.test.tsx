@@ -8,7 +8,7 @@ import { CalendarEvent } from './Tests/Fixtures/CalendarEvent';
 import { Person } from './Tests/Fixtures/Person';
 import { PropertyTypeOptions, ra_property } from './TypeDecorator/PropertyLevel';
 
-function buildAddress(name: string, age: number | string, street: string) {
+function buildAddress(name: string, age: number | string, street: string): Address {
     const address = new Address();
     const person = new Person();
     person.name = name;

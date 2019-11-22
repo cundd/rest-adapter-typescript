@@ -65,11 +65,11 @@ export class Repository<T> implements RepositoryInterface<T>, RepositoryExecuteI
         if (!(this._adapter instanceof RestAdapter)) {
             throw new TypeError('Not implemented');
         }
-        const onFulfilled = (result: any) => {
+        const onFulfilled = (result: any): R => {
             if (Array.isArray(result)) {
-                return this._converter.convertCollection(this._targetType, result);
+                return this._converter.convertCollection(this._targetType, result) as any;
             } else {
-                return this._converter.convertSingle(this._targetType, result);
+                return this._converter.convertSingle(this._targetType, result) as any;
             }
         };
 

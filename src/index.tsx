@@ -1,4 +1,4 @@
-import "reflect-metadata";
+import 'reflect-metadata';
 
 export * from './Credentials';
 export * from './Endpoint';
@@ -20,3 +20,5 @@ export * from './Deserializer';
 export * from './SerializerInterface';
 export * from './Serializer';
 export * from './TypeDecorator';
+export { PrimitiveType } from './PrimitiveType';
+export { CollectionType } from './CollectionType';

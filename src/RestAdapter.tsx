@@ -127,7 +127,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
     }
 
     private buildResponseCheck(reject: RejectCallback) {
-        return (response: Response) => {
+        return (response: Response): any => {
             if (response.ok) {
                 // If the response is ok try to decode the JSON body
                 try {
@@ -151,7 +151,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         };
     }
 
-    private assertValidResourceType(resourceType: string | any) {
+    private assertValidResourceType(resourceType: string | any): void {
         if (typeof resourceType !== 'string') {
             throw new TypeError(`Resource Type must be of type string "${typeof resourceType}" given`);
         }
@@ -161,7 +161,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         // }
     }
 
-    private assertValidIdentifier(identifier: IdentifierInterface | string) {
+    private assertValidIdentifier(identifier: IdentifierInterface | string): void {
         let identifierString;
         if (typeof identifier === 'string') {
             identifierString = identifier;
@@ -199,7 +199,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         return this.fetch(uri, requestSettings);
     }
 
-    private fetch(uri: string, requestSettings: RequestInit) {
+    private fetch(uri: string, requestSettings: RequestInit): Promise<Response> {
         const fetchCallback: FetchCallback | undefined = this.config.fetchCallback;
 
         let xhrPromise;
@@ -232,7 +232,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         result: T | null,
         resolve: ResolveCallback<T | null>,
         reject: RejectCallback
-    ) {
+    ): void {
         this.validator.validateSingleResult(result, resolve, reject);
     }
 
@@ -240,7 +240,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         result: T[],
         resolve: ResolveCallback<T[]>,
         reject: RejectCallback
-    ) {
+    ): void {
         this.validator.validateCollectionResult(result, resolve, reject);
     }
 
@@ -248,7 +248,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         result: T,
         resolve: ResolveCallback<T>,
         reject: RejectCallback
-    ) {
+    ): void {
         this.validator.validateSingleResult(result, resolve as ResolveCallback<T | null>, reject);
     }
 
@@ -256,7 +256,7 @@ export class RestAdapter implements AdapterInterface, AdapterExecuteInterface {
         result: T,
         resolve: ResolveCallback<T>,
         reject: RejectCallback
-    ) {
+    ): void {
         this.validator.validateSingleResult(result, resolve as ResolveCallback<T | null>, reject);
     }
 }

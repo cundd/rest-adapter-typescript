@@ -189,7 +189,7 @@ export class Endpoint implements EndpointInterface {
         return `${this._protocol}//${this._hostname}${portPart}${pathPart}`;
     }
 
-    private preparePort(port: number | string | undefined) {
+    private preparePort(port: number | string | undefined): number | undefined {
         if (port === undefined) {
             return undefined;
         }
@@ -201,14 +201,14 @@ export class Endpoint implements EndpointInterface {
      * @link https://stackoverflow.com/a/9221063/1552674
      * @param {string} hostname
      */
-    private assertValidHostname(hostname: string) {
+    private assertValidHostname(hostname: string): void {
         const regex = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))|(^\s*((?=.{1,255}$)(?=.*[A-Za-z].*)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*)\s*$)/;
         if (!hostname || !regex.test(hostname)) {
             throw new TypeError('Given value is not a valid IPv4, IPv6 or hostname');
         }
     }
 
-    private assertValidPort(port: number | string | undefined) {
+    private assertValidPort(port: number | string | undefined): void {
         if (undefined === port) {
             return;
         }
@@ -219,7 +219,7 @@ export class Endpoint implements EndpointInterface {
         }
     }
 
-    private assertValidProtocol(protocol: string) {
+    private assertValidProtocol(protocol: string): void {
         if (!protocol || protocol.trim() === '') {
             throw new TypeError('Protocol must not be empty');
         }
@@ -245,7 +245,7 @@ export class Endpoint implements EndpointInterface {
         return path;
     }
 
-    private hasDefaultPort() {
+    private hasDefaultPort(): boolean {
         const port = this._port;
         const protocol = this._protocol;
 

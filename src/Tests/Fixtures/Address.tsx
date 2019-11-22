@@ -17,11 +17,11 @@ export class Address {
         return this._person;
     }
 
-    public internalSetStreet(value: string) {
+    public internalSetStreet(value: string): void {
         this._street = value;
     }
 
-    public internalSetPerson(value: Person | undefined | null) {
+    public internalSetPerson(value: Person | undefined | null): void {
         this._person = value as any;
     }
 }

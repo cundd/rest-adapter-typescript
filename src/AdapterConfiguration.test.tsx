@@ -1,7 +1,14 @@
 import { AdapterConfiguration, FetchCallback } from './AdapterConfiguration';
 import { Endpoint } from './Endpoint';
 
-const getValidParameters = (includeIpv6: boolean) => {
+interface Parameters {
+    hosts: string[];
+    protocols: ('http:' | 'https:')[];
+    ports: (number | undefined)[];
+    paths: string[];
+}
+
+const getValidParameters = (includeIpv6: boolean): Parameters => {
     const hosts = [
         '127.0.0.1',
         'localhost',
@@ -35,7 +42,7 @@ const getValidParameters = (includeIpv6: boolean) => {
     };
 };
 
-const trimSlashes = (input: string) => input.replace(new RegExp('^/+|/+$', 'g'), '');
+const trimSlashes = (input: string): string => input.replace(new RegExp('^/+|/+$', 'g'), '');
 
 describe('Object instantiation', () => {
     it('new', () => {
@@ -60,7 +67,7 @@ describe('Object instantiation', () => {
         });
     });
 
-    const fromUrlTest = (buildUrlObject: boolean) => {
+    const fromUrlTest = (buildUrlObject: boolean): void => {
         const parameters = getValidParameters(false);
         const hosts = parameters.hosts;
         const protocols = parameters.protocols;
@@ -227,7 +234,7 @@ describe('Customizing the XHR function', () => {
     });
 
     it('new should accept function for fetchCallback', () => {
-        const callback = () => {
+        const callback = (): Promise<Response> => {
             return new Promise<Response>(() => {
             });
         };
@@ -236,7 +243,7 @@ describe('Customizing the XHR function', () => {
     });
 
     it('set fetchCallback should accept function', () => {
-        const callback = () => {
+        const callback = (): Promise<Response> => {
             return new Promise<Response>(() => {
             });
         };

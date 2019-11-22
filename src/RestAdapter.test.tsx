@@ -6,7 +6,7 @@ import { RestAdapter } from './RestAdapter';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fetchMock = require('jest-fetch-mock');
 
-function buildTestConfiguration(responseData: string | undefined, error?: any) {
+function buildTestConfiguration(responseData: string | undefined, error?: any): AdapterConfiguration {
     if (error) {
         fetchMock.mockReject(error);
     } else if (responseData) {
@@ -19,7 +19,7 @@ function buildTestConfiguration(responseData: string | undefined, error?: any) {
             path: '',
             port: undefined,
             protocol: '',
-            toString: () => {
+            toString: (): string => {
                 return 'url:';
             }
         },

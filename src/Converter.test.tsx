@@ -373,7 +373,7 @@ describe('Nesting', () => {
         }
     };
 
-    function testNested<T extends Partial<Nested>>(result: any, ctor: (new (...a: any[]) => T)) {
+    function testNested<T extends Partial<Nested>>(result: any, ctor: (new (...a: any[]) => T)): void {
         if (checkClass(result, ctor)) {
             expect(result.inner).not.toBeUndefined();
             if (result.inner) {
