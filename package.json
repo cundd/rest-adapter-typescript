@@ -1,6 +1,6 @@
 {
     "name": "rest-adapter",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "main": "build/dist/index.js",
     "typings": "src/index.tsx",
     "license": "MIT",
@@ -32,5 +32,11 @@
         "react": "^16.4.1",
         "react-dom": "^16.4.1",
         "typescript": "^3.7.2"
+    },
+    "peerDependencies": {
+        "@types/react": "^16.4.6",
+        "@types/react-dom": "^16.0.6",
+        "react": "^16.4.1",
+        "react-dom": "^16.4.1"
     }
 }
