@@ -1,0 +1,5 @@
+*.tgz
+**/*.test.ts*
+**/*.test.d.ts
+**/*.test.js
+**/*.test.*.map
