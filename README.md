@@ -1,7 +1,9 @@
 # TypeScript Adapter for [Cundd Rest](https://rest.cundd.net)
 
+Library to fetch and deserialize objects from a REST API
+
 ```typescript
-import {AdapterConfiguration, RestAdapter, PropertyTypeOptions, ra, ra_property} from 'rest-adapter';
+import {AdapterConfiguration, RestAdapter, PropertyTypeOptions, ra_property} from '@cundd/rest-adapter';
 
 export class Person {
     // Map property `name` 1:1 when converting 
