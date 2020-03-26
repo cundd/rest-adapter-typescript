@@ -18,6 +18,9 @@ class MixedOptions {
 
     @ra_property(Person, PropertyTypeOptions.Multiple | PropertyTypeOptions.Lazy)
     public multipleLazy: Person;
+
+    @ra_property(PropertyTypeOptions.NoSerialization)
+    public privateField: Person;
 }
 
 // ================================================================================================
@@ -92,6 +95,14 @@ const mixedOptionsTest = (instanceOrClass: object, provider: PropertyTypeDefinit
         expect(metadata.options & PropertyTypeOptions.Lazy).toBeTruthy();
         expect(metadata.hasMultiple()).toBeTruthy();
         expect(metadata.isLazy()).toBeTruthy();
+    }
+    {
+        const metadata = provider(instanceOrClass, 'privateField') as PropertyTypeDefinition<MixedOptions>;
+        expect(metadata).toBeDefined();
+        expect(metadata).toBeInstanceOf(PropertyTypeDefinition);
+        expect(metadata.type).toEqual(Person);
+        expect(metadata.options & PropertyTypeOptions.NoSerialization).toBeTruthy();
+        expect(metadata.noSerialization()).toBeTruthy();
     }
 };
 

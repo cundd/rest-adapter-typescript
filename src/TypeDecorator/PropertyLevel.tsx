@@ -117,6 +117,22 @@ export function ra_property<T>(
  *
  *  ```
  *      export class Model {
+ *          @ra_property(PropertyTypeOptions.NoSerialization)
+ *          privateField: Address
+ *      }
+ *  ```
+ * @param {PropertyTypeOptions} options
+ * @return {RaPropertyReturn}
+ */
+export function ra_property<T>(
+    options: PropertyTypeOptions
+): RaPropertyReturn;
+
+/**
+ * Example:
+ *
+ *  ```
+ *      export class Model {
  *          @ra_property()
  *      }
  *  ```
